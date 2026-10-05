@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Diagnostics — EduPredict</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .feat-bar-wrap { height:6px; background:rgba(255,255,255,0.06); border-radius:6px; overflow:hidden; }
+        .feat-bar-fill { height:100%; background:linear-gradient(90deg,#7c3aed,#a855f7); border-radius:6px; box-shadow:0 0 8px rgba(168,85,247,0.4); }
+        .retrain-btn {
+            background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.3);
+            color:#c084fc; padding:8px 18px; border-radius:10px; font-size:13px;
+            font-weight:700; cursor:pointer; font-family:inherit; transition:all .2s;
+        }
+        .retrain-btn:hover { background:rgba(168,85,247,0.22); }
+        .matrix-normal { color:#E0F2FE; font-weight:800; font-size:15px; }
+        .matrix-risk   { color:#E0F2FE; font-weight:800; font-size:15px; }
+        .matrix-err    { color:#FDA4AF; font-weight:700; font-size:14px; }
+        .matrix-label  { color:#E0F2FE; font-weight:800; font-size:12px; }
+        .importance-value { color:#E0F2FE; font-weight:800; }
+    </style>
+</head>
+<body>
+
+{% set active_page = 'models' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">&#8592; <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">ML Model Diagnostics</div>
+                <div class="topbar-sub">Hadoop/Spark Batch ML Performance &amp; Validation Metrics</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <form action="{{ url_for('retrain_models') }}" method="POST" style="margin:0;">
+                <button type="submit" class="retrain-btn">&#128260; Retrain Models</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+        {% endfor %}{% endif %}{% endwith %}
+
+        {% for model in models %}
+        <div class="card" style="margin-bottom:24px;">
+
+            <!-- Model Header -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+                <div>
+                    <div style="font-size:16px;font-weight:800;color:#f1f0ff;margin-bottom:4px;">{{ model.name }}</div>
+                    <div style="font-size:12px;color:#6b5f8a;">
+                        Algorithm: <span style="color:#c084fc;font-weight:600;">{{ model.algorithm }}</span> &middot; {{ model.version }}
+                    </div>
+                </div>
+                <span class="badge badge-success">{{ model.status }}</span>
+            </div>
+
+            <!-- 4 Metric Cards -->
+            <div class="stats-grid" style="margin-bottom:20px;">
+                <div class="stat-card purple">
+                    <div class="stat-icon purple">&#127919;</div>
+                    <div class="stat-value" style="color:#c084fc;">{{ model.accuracy }}%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon green">&#9989;</div>
+                    <div class="stat-value" style="color:#22c55e;">{{ model.precision }}%</div>
+                    <div class="stat-label">Precision</div>
+                </div>
+                <div class="stat-card cyan">
+                    <div class="stat-icon cyan">&#128225;</div>
+                    <div class="stat-value" style="color:#22d3ee;">{{ model.recall }}%</div>
+                    <div class="stat-label">Recall (Sensitivity)</div>
+                </div>
+                <div class="stat-card pink">
+                    <div class="stat-icon pink">&#128200;</div>
+                    <div class="stat-value" style="color:#ec4899;">{{ model.roc_auc }}</div>
+                    <div class="stat-label">ROC-AUC Score</div>
+                </div>
+            </div>
+
+            <!-- Feature Importance + Confusion Matrix -->
+            <div class="grid-2">
+
+                <!-- Feature Importance -->
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:rgba(168,85,247,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">
+                        &#128202; Feature Importance (SHAP Weights)
+                    </div>
+                    {% for feat in model.feature_importance %}
+                    <div style="margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                            <span style="color:#c4b8e8;">{{ feat.feature }}</span>
+                            <span class="importance-value">{{ (feat.score * 100)|round(1) }}%</span>
+                        </div>
+                        <div class="feat-bar-wrap">
+                            <div class="feat-bar-fill" data-pct="{{ (feat.score * 100)|round(1) }}"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Confusion Matrix -->
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:rgba(168,85,247,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">
+                        &#128290; Confusion Matrix (Validation Holdout)
+                    </div>
+                    <table class="data-table" style="margin-bottom:10px;">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Pred: Normal</th>
+                                <th>Pred: Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="matrix-label">Actual: Normal</td>
+                                <td class="matrix-normal">{{ model.confusion_matrix.matrix[0][0] }}</td>
+                                <td class="matrix-err">{{ model.confusion_matrix.matrix[0][1] }}</td>
+                            </tr>
+                            <tr>
+                                <td class="matrix-label">Actual: Risk</td>
+                                <td class="matrix-err">{{ model.confusion_matrix.matrix[1][0] }}</td>
+                                <td class="matrix-risk">{{ model.confusion_matrix.matrix[1][1] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="font-size:11px;color:#5a4f7a;">Source: {{ model.dataset_size }}</div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.feat-bar-fill[data-pct]').forEach(function(el) {
+        el.style.width = el.getAttribute('data-pct') + '%';
+    });
+</script>
+</body>
+</html>

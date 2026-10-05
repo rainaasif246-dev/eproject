@@ -1,0 +1,84 @@
+<aside class="sidebar">
+    <!-- Logo & Brand -->
+    <div class="sidebar-logo">
+        <div class="logo-icon">
+            <span style="color: #fff; font-weight: 900;">⚡</span>
+        </div>
+        <h2>EduPredict</h2>
+        <p>Big Data & ML Analytics</p>
+    </div>
+
+    <!-- Navigation links -->
+    <nav>
+        <div class="sidebar-section">Main Dashboard</div>
+        <a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+            <span class="icon">📊</span>
+            <span>Dashboard</span>
+        </a>
+        <a href="/students" class="nav-link {% if request.path == '/students' %}active{% endif %}">
+            <span class="icon">🎓</span>
+            <span>Students Directory</span>
+        </a>
+
+        <div class="sidebar-section">Predictive Analytics</div>
+        <a href="/predict" class="nav-link {% if request.path == '/predict' %}active{% endif %}">
+            <span class="icon">🔮</span>
+            <span>ML Predictions</span>
+        </a>
+        <a href="/course-demand" class="nav-link {% if request.path == '/course-demand' %}active{% endif %}">
+            <span class="icon">📈</span>
+            <span>Course Demand</span>
+        </a>
+        <a href="/models" class="nav-link {% if request.path == '/models' %}active{% endif %}">
+            <span class="icon">⚙️</span>
+            <span>Model Diagnostics</span>
+        </a>
+
+        <div class="sidebar-section">Administration & RBAC</div>
+        <a href="/users" class="nav-link {% if request.path == '/users' %}active{% endif %}">
+            <span class="icon">👥</span>
+            <span>User Management</span>
+        </a>
+        <a href="/ingest" class="nav-link {% if request.path == '/ingest' %}active{% endif %}">
+            <span class="icon">📥</span>
+            <span>Data Ingestion</span>
+        </a>
+        <a href="/storage" class="nav-link {% if request.path == '/storage' %}active{% endif %}">
+            <span class="icon">💾</span>
+            <span>HDFS Storage</span>
+        </a>
+        <a href="/realtime" class="nav-link {% if request.path == '/realtime' %}active{% endif %}">
+            <span class="icon">📡</span>
+            <span>Real-Time Stream</span>
+        </a>
+        <a href="/alerts" class="nav-link {% if request.path == '/alerts' %}active{% endif %}">
+            <span class="icon">🔔</span>
+            <span>Alerts & Logs</span>
+        </a>
+        <a href="/reports" class="nav-link {% if request.path == '/reports' %}active{% endif %}">
+            <span class="icon">📑</span>
+            <span>Reports</span>
+        </a>
+        <a href="/feedback" class="nav-link {% if request.path == '/feedback' %}active{% endif %}">
+            <span class="icon">💬</span>
+            <span>Support / Feedback</span>
+        </a>
+    </nav>
+
+    <!-- Sidebar Footer with User Pill -->
+    <div class="sidebar-footer">
+        <div class="user-pill">
+            <div class="user-avatar">
+                {{ session.get('user', 'U')[0]|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ session.get('user', 'Administrator')|title }}</div>
+                <div class="user-role">{{ session.get('role', 'System Admin') }}</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-btn">
+            <span>🚪</span>
+            <span>Sign Out</span>
+        </a>
+    </div>
+</aside>

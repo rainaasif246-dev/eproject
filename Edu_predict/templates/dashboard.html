@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPredict — Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<canvas id="neon3d-bg" aria-hidden="true"></canvas>
+
+<!-- SIDEBAR -->
+{% set active_page = 'dashboard' %}
+{% include '_sidebar.html' %}
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/" class="back-btn">← <span>Home</span></a>
+            <div>
+                <div class="topbar-title">Analytics Dashboard</div>
+                <div class="topbar-sub">Overview of student performance &amp; system health</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="status-dot">All Systems Operational</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        <!-- STAT CARDS -->
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <div class="stat-icon purple">👥</div>
+                <div class="stat-value" style="color:#c084fc;">{{ "{:,}".format(stats.total_students | default(6607) | int) if stats else '6,607' }}</div>
+                <div class="stat-label">Students Monitored</div>
+                <div class="stat-change up">↑ Hive Dataset (Real)</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-icon cyan">📈</div>
+                <div class="stat-value" style="color:#22d3ee;">{{ stats.avg_exam_score | default(67.2) }}%</div>
+                <div class="stat-label">Avg Exam Score</div>
+                <div class="stat-change up">↑ Avg Attendance: {{ stats.avg_attendance | default(0) }}%</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon green">✅</div>
+                <div class="stat-value" style="color:#22c55e;">{{ stats.pass_rate | default(0) }}%</div>
+                <div class="stat-label">Pass Rate (Score ≥ 60)</div>
+                <div class="stat-change up">↑ Score ≥ 60 students</div>
+            </div>
+            <div class="stat-card pink">
+                <div class="stat-icon pink">⚠️</div>
+                <div class="stat-value" style="color:#ec4899;">{{ stats.at_risk_count | default(0) }}</div>
+                <div class="stat-label">At-Risk Students</div>
+                <div class="stat-change down">↓ Score below 60</div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Score Distribution</div>
+                <div class="card-sub">Student exam score ranges across all cohorts</div>
+                <canvas id="scoreChart" height="200"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-title">Risk Category Breakdown</div>
+                <div class="card-sub">Current risk classification of all students</div>
+                <canvas id="riskChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- TREND CHART -->
+        <div class="card">
+            <div class="card-title">Attendance vs Performance Trend</div>
+            <div class="card-sub">Correlation between attendance rate and predicted exam scores</div>
+            <canvas id="trendChart" height="90"></canvas>
+        </div>
+
+        <!-- GENDER + INTERNET CHARTS ROW (Real Data) -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">👥 Gender Distribution
+                    <span style="font-size:11px;background:rgba(34,211,238,.12);color:#22d3ee;padding:2px 8px;border-radius:12px;font-weight:600;margin-left:8px;">REAL DATA</span>
+                </div>
+                <div class="card-sub">Male vs Female from 6,607 students</div>
+                <canvas id="genderChart" height="200"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-title">🌐 Internet Access
+                    <span style="font-size:11px;background:rgba(34,211,238,.12);color:#22d3ee;padding:2px 8px;border-radius:12px;font-weight:600;margin-left:8px;">REAL DATA</span>
+                </div>
+                <div class="card-sub">Students with/without internet access</div>
+                <canvas id="internetChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- ANOMALY DETECTION WIDGET -->
+        <div class="grid-2" style="margin-bottom:0;">
+            <div class="card">
+                <div class="card-title">🚨 Anomaly Detection — Live Feed</div>
+                <div class="card-sub">Real-time threshold breach events from ML engine</div>
+                <div id="dashAnomalyFeed" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">⚡ Spark Job Monitor</div>
+                <div class="card-sub">Active parallel processing tasks across executor nodes</div>
+                <canvas id="sparkJobChart" height="180"></canvas>
+            </div>
+        </div>
+
+        <!-- SYSTEM STATUS -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">System Health</div>
+                <div class="card-sub">Infrastructure & pipeline status</div>
+                <table class="data-table">
+                    <thead><tr><th>Component</th><th>Status</th><th>Uptime</th></tr></thead>
+                    <tbody>
+                        <tr><td>HDFS Cluster</td><td><span class="badge badge-success">Online</span></td><td>99.9%</td></tr>
+                        <tr><td>ML Inference Engine</td><td><span class="badge badge-success">Online</span></td><td>99.7%</td></tr>
+                        <tr><td>Kafka Stream</td><td><span class="badge badge-success">Online</span></td><td>99.8%</td></tr>
+                        <tr><td>Spark Processing</td><td><span class="badge badge-success">Online</span></td><td>99.5%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card">
+                <div class="card-title">Recent Activity</div>
+                <div class="card-sub">Latest system events</div>
+                <table class="data-table">
+                    <thead><tr><th>Time</th><th>Event</th><th>Type</th></tr></thead>
+                    <tbody>
+                        <tr><td>09:14</td><td>Student #4821 — Low attendance alert</td><td><span class="badge badge-danger">Alert</span></td></tr>
+                        <tr><td>09:10</td><td>Batch job — 6,607 records processed</td><td><span class="badge badge-success">Job</span></td></tr>
+                        <tr><td>09:05</td><td>Model retrained — R² = 0.83</td><td><span class="badge badge-purple">ML</span></td></tr>
+                        <tr><td>08:50</td><td>New dataset ingested — 89K records</td><td><span class="badge badge-purple">Data</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const neonCanvas = document.getElementById('neon3d-bg');
+    const neonContext = neonCanvas.getContext('2d');
+    let neonWidth = 0;
+    let neonHeight = 0;
+    let neonFrame = 0;
+    const neonNodes = Array.from({ length: 42 }, (_, index) => ({
+        angle: (index / 42) * Math.PI * 2,
+        radius: 0.25 + (index % 7) * 0.045,
+        speed: 0.00035 + (index % 5) * 0.00008,
+        depth: 0.35 + (index % 4) * 0.16
+    }));
+
+    function resizeNeonCanvas() {
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        neonWidth = window.innerWidth;
+        neonHeight = window.innerHeight;
+        neonCanvas.width = neonWidth * pixelRatio;
+        neonCanvas.height = neonHeight * pixelRatio;
+        neonCanvas.style.width = `${neonWidth}px`;
+        neonCanvas.style.height = `${neonHeight}px`;
+        neonContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    }
+
+    function drawNeon3d() {
+        neonFrame += 1;
+        neonContext.clearRect(0, 0, neonWidth, neonHeight);
+        const horizon = neonHeight * 0.58;
+        const centerX = neonWidth * 0.68;
+        const vanishingY = neonHeight * 0.34;
+
+        neonContext.lineWidth = 1;
+        neonContext.strokeStyle = 'rgba(34, 211, 238, 0.12)';
+        for (let line = -10; line <= 10; line += 1) {
+            neonContext.beginPath();
+            neonContext.moveTo(centerX + line * 48, horizon);
+            neonContext.lineTo(centerX + line * 230, neonHeight);
+            neonContext.stroke();
+        }
+        for (let row = 0; row < 9; row += 1) {
+            const progress = ((row * 0.12 + neonFrame * 0.0012) % 1);
+            const y = vanishingY + Math.pow(progress, 2) * (neonHeight - vanishingY);
+            neonContext.beginPath();
+            neonContext.moveTo(0, y);
+            neonContext.lineTo(neonWidth, y);
+            neonContext.stroke();
+        }
+
+        neonNodes.forEach((node, index) => {
+            node.angle += node.speed;
+            const x = centerX + Math.cos(node.angle) * neonWidth * node.radius;
+            const y = vanishingY + (0.5 + Math.sin(node.angle * 1.7) * 0.35) * neonHeight * node.depth;
+            const size = 1.5 + (index % 3);
+            neonContext.beginPath();
+            neonContext.fillStyle = index % 3 === 0 ? 'rgba(167, 139, 250, 0.78)' : 'rgba(34, 211, 238, 0.72)';
+            neonContext.shadowBlur = 12;
+            neonContext.shadowColor = neonContext.fillStyle;
+            neonContext.arc(x, y, size, 0, Math.PI * 2);
+            neonContext.fill();
+        });
+        neonContext.shadowBlur = 0;
+        requestAnimationFrame(drawNeon3d);
+    }
+
+    resizeNeonCanvas();
+    window.addEventListener('resize', resizeNeonCanvas);
+    drawNeon3d();
+
+    const gridColor = 'rgba(34, 211, 238, 0.08)';
+    const tickColor = '#67E8F9';
+    const legendColor = '#F8FAFC';
+
+    // Global Chart.js styling matching Neon Arctic Cyber Glass theme
+    Chart.defaults.color = '#94A3B8';
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(6, 18, 31, 0.95)';
+    Chart.defaults.plugins.tooltip.borderColor = 'rgba(34, 211, 238, 0.4)';
+    Chart.defaults.plugins.tooltip.borderWidth = 1.5;
+    Chart.defaults.plugins.tooltip.titleColor = '#67E8F9';
+    Chart.defaults.plugins.tooltip.bodyColor = '#F8FAFC';
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+
+    // ── 1. SCORE DISTRIBUTION CHART ──
+    new Chart(document.getElementById('scoreChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Below 60', '60–70', '70–80', 'Above 80'],
+            datasets: [{
+                label: 'Students',
+                data: [
+                    {{ stats.score_below_60 | default(120) }},
+                    {{ stats.score_60_70    | default(480) }},
+                    {{ stats.score_70_80    | default(1850) }},
+                    {{ stats.score_above_80 | default(2800) }}
+                ],
+                backgroundColor: [
+                    'rgba(244, 63, 94, 0.82)',
+                    'rgba(245, 158, 11, 0.82)',
+                    'rgba(6, 182, 212, 0.82)',
+                    'rgba(16, 185, 129, 0.85)'
+                ],
+                borderColor: ['#FB7185', '#FBBF24', '#22D3EE', '#34D399'],
+                borderWidth: 1.5,
+                borderRadius: 10,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { labels: { color: legendColor, font: { size: 12, weight: '600' } } }
+            },
+            scales: {
+                x: { ticks: { color: tickColor, font: { weight: '500' } }, grid: { color: gridColor } },
+                y: { ticks: { color: tickColor, font: { weight: '500' } }, grid: { color: gridColor } }
+            }
+        }
+    });
+
+    // ── 2. DROPOUT RISK PROPORTION CHART ──
+    new Chart(document.getElementById('riskChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['High Risk (Score < 60)', 'Medium Risk (60–70)', 'Low Risk (Score > 70)'],
+            datasets: [{
+                data: [
+                    {{ stats.score_below_60 | default(18) }},
+                    {{ stats.score_60_70    | default(48) }},
+                    {{ stats.score_above_80 + stats.score_70_80 | default(34) }}
+                ],
+                backgroundColor: [
+                    '#F43F5E',
+                    '#F59E0B',
+                    '#10B981'
+                ],
+                borderColor: '#06121F',
+                borderWidth: 3,
+                hoverBorderColor: '#67E8F9',
+                hoverBorderWidth: 2,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: legendColor, padding: 16, font: { size: 12, weight: '500' } }
+                }
+            }
+        }
+    });
+
+    // ── 3. PERFORMANCE TREND (ATTENDANCE VS SCORE) ──
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    const trendGrad = trendCtx.createLinearGradient(0, 0, 0, 260);
+    trendGrad.addColorStop(0, 'rgba(34, 211, 238, 0.45)');
+    trendGrad.addColorStop(0.7, 'rgba(34, 211, 238, 0.12)');
+    trendGrad.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
+
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['40%','50%','60%','70%','75%','80%','85%','90%','95%','100%'],
+            datasets: [{
+                label: 'Avg Predicted Score',
+                data: [38, 45, 52, 59, 63, 68, 73, 79, 85, 91],
+                borderColor: '#22D3EE',
+                borderWidth: 2.5,
+                backgroundColor: trendGrad,
+                fill: true,
+                tension: 0.42,
+                pointBackgroundColor: '#67E8F9',
+                pointBorderColor: '#06121F',
+                pointBorderWidth: 2,
+                pointRadius: 4.5,
+                pointHoverRadius: 7.5,
+                pointHoverBackgroundColor: '#FFFFFF',
+                pointHoverBorderColor: '#22D3EE'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { labels: { color: legendColor, font: { size: 12, weight: '600' } } }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Attendance %', color: tickColor, font: { weight: '600' } },
+                    ticks: { color: tickColor },
+                    grid: { color: gridColor }
+                },
+                y: {
+                    title: { display: true, text: 'Predicted Score %', color: tickColor, font: { weight: '600' } },
+                    ticks: { color: tickColor },
+                    grid: { color: gridColor }
+                }
+            }
+        }
+    });
+
+    // ── 4. GENDER DEMOGRAPHICS CHART ──
+    new Chart(document.getElementById('genderChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Male', 'Female'],
+            datasets: [{
+                data: [{{ stats.gender_male | default(3814) }}, {{ stats.gender_female | default(2793) }}],
+                backgroundColor: [
+                    '#06B6D4',
+                    '#A855F7'
+                ],
+                borderColor: '#06121F',
+                borderWidth: 3,
+                hoverBorderColor: '#67E8F9',
+                hoverBorderWidth: 2,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: legendColor, padding: 18, font: { size: 13, weight: '500' } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                            const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                            return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${pct}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // ── 5. INTERNET ACCESS CHART ──
+    new Chart(document.getElementById('internetChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Has Internet', 'No Internet'],
+            datasets: [{
+                label: 'Students',
+                data: [{{ stats.internet_yes | default(6108) }}, {{ (stats.total_students - stats.internet_yes) | default(499) }}],
+                backgroundColor: [
+                    'rgba(34, 211, 238, 0.85)',
+                    'rgba(244, 63, 94, 0.82)'
+                ],
+                borderColor: ['#67E8F9', '#FB7185'],
+                borderWidth: 1.5,
+                borderRadius: 10,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: tickColor, font: { weight: '500' } }, grid: { color: gridColor } },
+                y: { ticks: { color: tickColor, font: { weight: '500' } }, grid: { color: gridColor } }
+            }
+        }
+    });
+    const dashAnomalyTemplates = [
+        { msg: 'Student #{id} — Attendance {val}% (below threshold)', level: 'danger' },
+        { msg: 'Student #{id} — Dropout risk: {val}%', level: 'danger' },
+        { msg: 'Student #{id} — Score prediction: {val}% (Critical)', level: 'danger' },
+        { msg: 'Student #{id} — Risk resolved after intervention', level: 'success' },
+    ];
+    function addDashAnomaly() {
+        const t = dashAnomalyTemplates[Math.floor(Math.random() * dashAnomalyTemplates.length)];
+        const id = Math.floor(1000 + Math.random() * 9000);
+        const val = t.level === 'success' ? '' : Math.floor(28 + Math.random() * 40);
+        const msg = t.msg.replace('{id}', id).replace('{val}', val);
+        const color = t.level === 'danger' ? '#fca5a5' : '#86efac';
+        const icon = t.level === 'danger' ? '🔴' : '🟢';
+        const time = new Date().toTimeString().slice(0,8);
+        const feed = document.getElementById('dashAnomalyFeed');
+        const div = document.createElement('div');
+        div.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:7px 9px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);';
+        div.innerHTML = `<span style="font-size:13px;">${icon}</span><div><div style="font-size:11.5px;font-weight:600;color:${color};">${msg}</div><div style="font-size:10.5px;color:#5a4f7a;margin-top:1px;">${time}</div></div>`;
+        feed.insertBefore(div, feed.firstChild);
+        if (feed.children.length > 6) feed.removeChild(feed.lastChild);
+    }
+    for (let i = 0; i < 4; i++) addDashAnomaly();
+    setInterval(addDashAnomaly, 4000);
+
+    // ── 6. SPARK PARALLEL JOBS CHART ──
+    const sparkData = {
+        labels: ['Executor-1','Executor-2','Executor-3','Executor-4'],
+        datasets: [
+            {
+                label: 'Tasks Done',
+                data: [48, 52, 44, 43],
+                backgroundColor: 'rgba(168, 85, 247, 0.85)',
+                borderColor: '#C084FC',
+                borderWidth: 1.5,
+                borderRadius: 6
+            },
+            {
+                label: 'Tasks Active',
+                data: [8, 9, 7, 8],
+                backgroundColor: 'rgba(34, 211, 238, 0.85)',
+                borderColor: '#67E8F9',
+                borderWidth: 1.5,
+                borderRadius: 6
+            }
+        ]
+    };
+    const sparkChart = new Chart(document.getElementById('sparkJobChart'), {
+        type: 'bar',
+        data: sparkData,
+        options: {
+            plugins: { legend: { labels: { color: '#c4b8e8', font: { size: 11, weight: '500' } } } },
+            scales: {
+                x: { ticks: { color: tickColor }, grid: { color: gridColor }, stacked: true },
+                y: { ticks: { color: tickColor }, grid: { color: gridColor }, stacked: true }
+            }
+        }
+    });
+    setInterval(() => {
+        sparkChart.data.datasets[0].data = sparkChart.data.datasets[0].data.map(v => v + Math.floor(1 + Math.random() * 4));
+        sparkChart.data.datasets[1].data = [8,9,7,8].map(v => v + Math.floor(Math.random() * 4 - 1));
+        sparkChart.update();
+    }, 3000);
+</script>
+</body>
+</html>

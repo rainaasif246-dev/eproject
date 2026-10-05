@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Features — EduPredict</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#22d3ee;--p2:#6366f1;--p3:#67e8f9;--pink:#ec4899;--cyan:#22d3ee;--green:#22c55e;--bg:#0a0f1e;--text:#f5f0dc;--muted:#8aa6aa}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(34,211,238,.08) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(99,86,241,.06) 0%,transparent 60%)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:68px;background:rgba(10,15,30,.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(34,211,238,.15)}
+nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.5),transparent)}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo{width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px rgba(34,211,238,.5)}
+.nav-name{font-size:18px;font-weight:800;background:linear-gradient(90deg,#22d3ee,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;align-items:center;gap:36px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-links a.active{color:var(--p3)}
+.nav-btn-outline{padding:8px 20px;border:1px solid rgba(34,211,238,.3);border-radius:9px;color:#67e8f9;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s}
+.nav-btn-outline:hover{background:rgba(34,211,238,.08)}
+.nav-btn-fill{padding:8px 20px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:9px;color:#fff;text-decoration:none;font-size:14px;font-weight:700;box-shadow:0 4px 16px rgba(99,86,241,.4);transition:all .2s}
+.nav-btn-fill:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(99,86,241,.6)}
+.page-hero{padding:140px 60px 80px;text-align:center;position:relative;z-index:1}
+.sec-badge{display:inline-block;padding:4px 14px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);border-radius:20px;font-size:11px;font-weight:700;color:#67e8f9;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.page-title{font-size:clamp(36px,5vw,64px);font-weight:900;letter-spacing:-2px;margin-bottom:16px;line-height:1.1}
+.grad-text{color:#67E8F9;background:none;-webkit-text-fill-color:#67E8F9;animation:none}
+@keyframes gradShift{0%,100%{background-position:0%}50%{background-position:100%}}
+.page-sub{font-size:17px;color:var(--muted);max-width:580px;margin:0 auto;line-height:1.8}
+.section{padding:80px 60px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+/* FEATURES GRID */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:80px}
+.feat-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:30px;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,border-color .35s,background .35s;position:relative;overflow:hidden}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.3),transparent)}
+.feat-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(34,211,238,.06),transparent);opacity:0;transition:opacity .35s}
+.feat-card:hover{border-color:rgba(34,211,238,.45);transform:translateY(-8px) scale(1.02);box-shadow:0 24px 64px rgba(34,211,238,.15)}
+.feat-card:hover::after{opacity:1}
+.feat-icon{font-size:36px;margin-bottom:18px;display:block;transition:transform .3s}
+.feat-card:hover .feat-icon{transform:scale(1.18) rotate(-6deg)}
+.feat-title{font-size:16px;font-weight:700;margin-bottom:10px}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:14px}
+.feat-tag{display:inline-block;padding:3px 10px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);border-radius:20px;font-size:11px;font-weight:700;color:#67e8f9}
+/* TECH GRID */
+.tech-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:80px}
+.tech-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px 12px;text-align:center;transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s,border-color .3s,background .3s}
+.tech-card:hover{border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.08);transform:translateY(-6px) scale(1.06);box-shadow:0 12px 32px rgba(34,211,238,.15)}
+.tech-icon{font-size:30px;margin-bottom:10px;display:block;transition:transform .3s}
+.tech-card:hover .tech-icon{transform:scale(1.25) rotate(5deg)}
+.tech-name{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px}
+.sec-title{font-size:clamp(24px,3vw,36px);font-weight:900;letter-spacing:-1px;margin-bottom:10px}
+.sec-sub{font-size:15px;color:var(--muted);margin-bottom:40px;line-height:1.7}
+.sec-sub.center{text-align:center;max-width:500px;margin:0 auto 40px}
+.divider{border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.2),transparent);margin:0;position:relative;z-index:1}
+.cta-wrap{text-align:center;padding:100px 40px;background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(99,86,241,.04));border-top:1px solid rgba(34,211,238,.15);position:relative;overflow:hidden;z-index:1}
+.cta-wrap::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(34,211,238,.08) 0%,transparent 70%);border-radius:50%;pointer-events:none}
+.cta-wrap h2{font-size:clamp(28px,4vw,46px);font-weight:900;margin-bottom:14px;letter-spacing:-2px;position:relative}
+.cta-wrap p{font-size:16px;color:var(--muted);margin-bottom:36px;position:relative}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative}
+.btn-primary{padding:14px 32px;background:linear-gradient(135deg,var(--p2),var(--p));color:#fff;border-radius:13px;text-decoration:none;font-size:15px;font-weight:700;box-shadow:0 6px 28px rgba(99,86,241,.4);transition:all .25s}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(34,211,238,.4)}
+.btn-secondary{padding:14px 32px;background:rgba(34,211,238,.04);border:1px solid rgba(34,211,238,.2);color:var(--text);border-radius:13px;text-decoration:none;font-size:15px;font-weight:600;transition:all .25s}
+.btn-secondary:hover{background:rgba(34,211,238,.08);border-color:rgba(34,211,238,.4);transform:translateY(-2px)}
+footer{padding:60px 60px 40px;border-top:1px solid rgba(255,255,255,.05);position:relative;z-index:1}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+.footer-brand .logo-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.footer-brand .logo-box{width:38px;height:38px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(34,211,238,.3)}
+.footer-brand .logo-name{font-size:17px;font-weight:800;background:linear-gradient(90deg,#22d3ee,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.footer-brand p{font-size:13px;color:var(--muted);line-height:1.8;max-width:260px}
+.footer-col h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px}
+.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:10px;transition:color .2s}
+.footer-col a:hover{color:var(--p3)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid rgba(255,255,255,.05)}
+.footer-bottom p{font-size:12px;color:var(--muted)}
+.footer-bottom span{color:var(--p3)}
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.04s}.d2{transition-delay:.10s}.d3{transition-delay:.16s}
+.d4{transition-delay:.22s}.d5{transition-delay:.28s}.d6{transition-delay:.34s}
+.d7{transition-delay:.40s}.d8{transition-delay:.46s}.d9{transition-delay:.52s}
+@media(max-width:900px){nav{padding:0 20px}.nav-links{display:none}.section{padding:60px 20px}.feat-grid{grid-template-columns:1fr 1fr}.tech-grid{grid-template-columns:repeat(3,1fr)}.footer-top{grid-template-columns:1fr 1fr}.page-hero{padding:120px 20px 60px}}
+@media(max-width:600px){.feat-grid{grid-template-columns:1fr}.tech-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='glass_theme.css') }}">
+<script src="{{ url_for('static', filename='ai_background.js') }}" defer></script>
+</head>
+<body>
+
+<nav>
+  <a href="{{ url_for('index') }}" class="nav-brand">
+    <div class="nav-logo">🎓</div>
+    <span class="nav-name">EduPredict</span>
+  </a>
+  <div class="nav-links">
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('about') }}">About</a>
+    <a href="{{ url_for('features') }}">Features</a>
+    <a href="{{ url_for('contact') }}">Contact</a>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <a href="{{ url_for('login') }}" class="nav-btn-outline">Sign In</a>
+    <a href="{{ url_for('register') }}" class="nav-btn-fill">Register</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="sec-badge reveal">Platform Features</div>
+  <div class="page-title reveal d1">Everything you need to<br><span class="grad-text">manage student success</span></div>
+  <p class="page-sub reveal d2">9 powerful modules built on SRS requirements — from data ingestion to real-time alerts, all in one platform.</p>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+
+  <!-- FEATURES -->
+  <div class="feat-grid">
+    <div class="feat-card reveal d1">
+      <span class="feat-icon">🤖</span>
+      <div class="feat-title">ML Prediction Engine</div>
+      <div class="feat-desc">Random Forest &amp; Linear Regression predict exam scores and at-risk students using 21 real features from Student Performance Dataset.</div>
+      <span class="feat-tag">Core ML</span>
+    </div>
+    <div class="feat-card reveal d2">
+      <span class="feat-icon">📊</span>
+      <div class="feat-title">Analytics Dashboard</div>
+      <div class="feat-desc">Interactive Chart.js visualizations — score distribution, risk breakdown, attendance vs performance trends across all students.</div>
+      <span class="feat-tag">Visualization</span>
+    </div>
+    <div class="feat-card reveal d3">
+      <span class="feat-icon">🔔</span>
+      <div class="feat-title">Automated Alerts</div>
+      <div class="feat-desc">Configurable thresholds trigger real-time notifications for low attendance, score risk, and dropout probability anomalies.</div>
+      <span class="feat-tag">Real-Time</span>
+    </div>
+    <div class="feat-card reveal d4">
+      <span class="feat-icon">🗄️</span>
+      <div class="feat-title">HDFS Data Storage</div>
+      <div class="feat-desc">Hadoop Distributed File System with 3x replication, 4 active DataNodes, and 2.4TB scalable fault-tolerant storage.</div>
+      <span class="feat-tag">Big Data</span>
+    </div>
+    <div class="feat-card reveal d5">
+      <span class="feat-icon">⚡</span>
+      <div class="feat-title">Real-Time Processing</div>
+      <div class="feat-desc">Apache Kafka + Spark Streaming pipeline processing 1,247 events/sec with 12ms latency, integrated with batch jobs.</div>
+      <span class="feat-tag">Streaming</span>
+    </div>
+    <div class="feat-card reveal d6">
+      <span class="feat-icon">🔐</span>
+      <div class="feat-title">Role-Based Access Control</div>
+      <div class="feat-desc">SHA-256 secured authentication with 4 roles — Administrator, Teacher, Analyst, Student — each with defined permissions.</div>
+      <span class="feat-tag">Security</span>
+    </div>
+    <div class="feat-card reveal d7">
+      <span class="feat-icon">📥</span>
+      <div class="feat-title">Data Ingestion Pipeline</div>
+      <div class="feat-desc">Upload CSV, JSON, XML datasets — Academic Records, Demographics, LMS Activity, Attendance — into HDFS pipeline.</div>
+      <span class="feat-tag">ETL</span>
+    </div>
+    <div class="feat-card reveal d8">
+      <span class="feat-icon">📚</span>
+      <div class="feat-title">Course Demand Forecast</div>
+      <div class="feat-desc">Predict future enrollment demand by course category with growth trend analysis and faculty allocation recommendations.</div>
+      <span class="feat-tag">Forecasting</span>
+    </div>
+    <div class="feat-card reveal d9">
+      <span class="feat-icon">💬</span>
+      <div class="feat-title">Support Portal</div>
+      <div class="feat-desc">Full ticket system with category, priority, history tracking, FAQ accordion, and multi-channel contact support.</div>
+      <span class="feat-tag">Support</span>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div id="technology" style="text-align:center;margin-bottom:40px;">
+    <div class="sec-badge reveal">Technology Stack</div>
+    <div class="sec-title reveal d1">Powered by industry-grade tools</div>
+    <div class="sec-sub center reveal d2">Enterprise-level big data and ML stack as per SRS requirements.</div>
+  </div>
+  <div class="tech-grid">
+    <div class="tech-card reveal d1"><span class="tech-icon">🐘</span><div class="tech-name">Hadoop HDFS</div></div>
+    <div class="tech-card reveal d2"><span class="tech-icon">⚡</span><div class="tech-name">Apache Spark</div></div>
+    <div class="tech-card reveal d3"><span class="tech-icon">📨</span><div class="tech-name">Apache Kafka</div></div>
+    <div class="tech-card reveal d4"><span class="tech-icon">🤖</span><div class="tech-name">Scikit-Learn</div></div>
+    <div class="tech-card reveal d5"><span class="tech-icon">🐍</span><div class="tech-name">Python Flask</div></div>
+    <div class="tech-card reveal d6"><span class="tech-icon">📈</span><div class="tech-name">Chart.js</div></div>
+    <div class="tech-card reveal d1"><span class="tech-icon">🗃️</span><div class="tech-name">MongoDB</div></div>
+    <div class="tech-card reveal d2"><span class="tech-icon">🔍</span><div class="tech-name">Apache Impala</div></div>
+    <div class="tech-card reveal d3"><span class="tech-icon">📊</span><div class="tech-name">Tableau</div></div>
+    <div class="tech-card reveal d4"><span class="tech-icon">🔬</span><div class="tech-name">Jupyter</div></div>
+    <div class="tech-card reveal d5"><span class="tech-icon">📐</span><div class="tech-name">RStudio</div></div>
+    <div class="tech-card reveal d6"><span class="tech-icon">🛡️</span><div class="tech-name">SHA-256 Auth</div></div>
+  </div>
+
+</div>
+
+<div class="cta-wrap">
+  <h2>Ready to explore<br><span class="grad-text">all features?</span></h2>
+  <p>Sign in to access the full EduPredict analytics platform.</p>
+  <div class="cta-btns">
+    <a href="/login" class="btn-primary">🚀 Sign In to EduPredict</a>
+    <a href="/about" class="btn-secondary">Learn About Us</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo-row"><div class="logo-box">🎓</div><span class="logo-name">EduPredict</span></div>
+      <p>AI-powered education analytics platform built on Hadoop &amp; Big Data.</p>
+    </div>
+    <div class="footer-col"><h4>Platform</h4><a href="/login">Dashboard</a><a href="/login">ML Predictor</a><a href="/login">Alerts</a></div>
+    <div class="footer-col"><h4>Company</h4><a href="/">Home</a><a href="/about">About</a><a href="/features">Features</a><a href="/contact">Contact</a></div>
+    <div class="footer-col"><h4>Support</h4><a href="/login">Help Center</a><a href="/login">Submit Ticket</a><a href="/register">Register</a></div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 EduPredict. All rights reserved.</p>
+    <p>Built with <span>♥</span> using Python, Flask &amp; Hadoop</p>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.querySelector('nav').style.background=window.scrollY>50?'rgba(10,15,30,.95)':'rgba(10,15,30,.85)'});
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+})();
+</script>
+</body>
+</html>

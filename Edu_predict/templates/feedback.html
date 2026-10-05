@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPredict — Support & Feedback</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% set active_page = 'feedback' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">Support & Feedback Portal</div>
+                <div class="topbar-sub">Report issues, submit feedback, and get assistance</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="status-dot">Support Online</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        <!-- SUPPORT STATS -->
+        <div class="grid-3" style="margin-bottom:20px;">
+            <div class="stat-card purple">
+                <div class="stat-icon purple">🎫</div>
+                <div class="stat-value" style="color:#c084fc;">24</div>
+                <div class="stat-label">Total Tickets Submitted</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon green">✅</div>
+                <div class="stat-value" style="color:#22c55e;">21</div>
+                <div class="stat-label">Resolved Tickets</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-icon cyan">⏱️</div>
+                <div class="stat-value" style="color:#22d3ee;">~2h</div>
+                <div class="stat-label">Avg Response Time</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+
+            <!-- SUBMIT TICKET FORM -->
+            <div class="card">
+                <div class="card-title">Submit a Support Ticket</div>
+                <div class="card-sub">Describe your issue or feedback — our team will respond promptly</div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}{% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                  {% endfor %}{% endif %}
+                {% endwith %}
+
+                <form action="/feedback" method="POST">
+                    <div class="form-group">
+                        <label>Ticket Category</label>
+                        <select name="category">
+                            <option value="bug">🐛 Bug Report</option>
+                            <option value="feature">💡 Feature Request</option>
+                            <option value="data">📊 Data Issue</option>
+                            <option value="model">🤖 ML Model Issue</option>
+                            <option value="access">🔐 Access / Login Issue</option>
+                            <option value="other">💬 General Feedback</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority Level</label>
+                        <select name="priority">
+                            <option value="low">🟢 Low — General inquiry</option>
+                            <option value="medium" selected>🟡 Medium — Affects workflow</option>
+                            <option value="high">🔴 High — System not working</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ticket Subject</label>
+                        <input type="text" name="subject" required placeholder="e.g. Prediction result seems incorrect">
+                    </div>
+                    <div class="form-group">
+                        <label>Detailed Description</label>
+                        <textarea name="message" rows="5" required placeholder="Describe the issue in detail — steps to reproduce, expected vs actual behavior..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Email (for follow-up)</label>
+                        <input type="email" name="email" placeholder="e.g. user@institution.edu">
+                    </div>
+                    <button type="submit">Submit Ticket →</button>
+                </form>
+            </div>
+
+            <!-- RIGHT COLUMN: FAQ + TICKET HISTORY -->
+            <div style="display:flex; flex-direction:column; gap:20px;">
+
+                <!-- TICKET HISTORY -->
+                <div class="card">
+                    <div class="card-title">Recent Ticket History</div>
+                    <div class="card-sub">Your previously submitted support requests</div>
+                    <table class="data-table">
+                        <thead><tr><th>ID</th><th>Subject</th><th>Priority</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td style="color:#7c6fa0;">#T-024</td>
+                                <td>Dashboard chart not loading</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-success">Resolved</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color:#7c6fa0;">#T-023</td>
+                                <td>Dropout risk score always 0</td>
+                                <td><span class="badge badge-danger">High</span></td>
+                                <td><span class="badge badge-success">Resolved</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color:#7c6fa0;">#T-022</td>
+                                <td>Request: Export predictions to CSV</td>
+                                <td><span class="badge badge-purple">Low</span></td>
+                                <td><span class="badge badge-warning">In Review</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color:#7c6fa0;">#T-021</td>
+                                <td>HDFS storage page access denied</td>
+                                <td><span class="badge badge-danger">High</span></td>
+                                <td><span class="badge badge-success">Resolved</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color:#7c6fa0;">#T-020</td>
+                                <td>Alert threshold not saving</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-success">Resolved</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- FAQ -->
+                <div class="card">
+                    <div class="card-title">Frequently Asked Questions</div>
+                    <div class="card-sub">Quick answers to common questions</div>
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+                        <div class="faq-item" onclick="toggleFaq(this)" style="cursor:pointer; padding:12px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; font-weight:600; color:#e9d5ff;">How are exam scores predicted?</span>
+                                <span style="color:#a855f7; font-size:16px;" class="faq-arrow">▼</span>
+                            </div>
+                            <div class="faq-body" style="display:none; font-size:12px; color:#7c6fa0; margin-top:8px; line-height:1.6;">
+                                EduPredict uses Linear Regression and Random Forest models trained on 6,607 student records. Features include study hours, attendance, previous scores, parental involvement, and tutoring sessions.
+                            </div>
+                        </div>
+                        <div class="faq-item" onclick="toggleFaq(this)" style="cursor:pointer; padding:12px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; font-weight:600; color:#e9d5ff;">What does the dropout risk score mean?</span>
+                                <span style="color:#a855f7; font-size:16px;" class="faq-arrow">▼</span>
+                            </div>
+                            <div class="faq-body" style="display:none; font-size:12px; color:#7c6fa0; margin-top:8px; line-height:1.6;">
+                                A score above 60% indicates critical dropout risk requiring immediate intervention. 30–60% is moderate risk, and below 30% is low risk. Scores are calculated from attendance, grades, study hours, and support factors.
+                            </div>
+                        </div>
+                        <div class="faq-item" onclick="toggleFaq(this)" style="cursor:pointer; padding:12px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; font-weight:600; color:#e9d5ff;">Who can access the Data Ingestion page?</span>
+                                <span style="color:#a855f7; font-size:16px;" class="faq-arrow">▼</span>
+                            </div>
+                            <div class="faq-body" style="display:none; font-size:12px; color:#7c6fa0; margin-top:8px; line-height:1.6;">
+                                Only Administrators and Analysts have access to Data Ingestion, Storage, and Real-Time pages. Teachers and Students have restricted access as per role-based access control (RBAC).
+                            </div>
+                        </div>
+                        <div class="faq-item" onclick="toggleFaq(this)" style="cursor:pointer; padding:12px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:13px; font-weight:600; color:#e9d5ff;">How often are ML models retrained?</span>
+                                <span style="color:#a855f7; font-size:16px;" class="faq-arrow">▼</span>
+                            </div>
+                            <div class="faq-body" style="display:none; font-size:12px; color:#7c6fa0; margin-top:8px; line-height:1.6;">
+                                Models are retrained automatically when new batch data is ingested into HDFS. The system maintains model versioning and logs R² scores after each retraining cycle.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- CONTACT INFO -->
+        <div class="card">
+            <div class="card-title">Contact & Support Channels</div>
+            <div class="card-sub">Reach the EduPredict support team through any of these channels</div>
+            <div class="grid-3" style="margin-top:4px;">
+                <div style="display:flex; align-items:center; gap:14px; padding:16px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:12px;">
+                    <div style="font-size:28px;">📧</div>
+                    <div>
+                        <div style="font-size:13px; font-weight:600; color:#e9d5ff;">Email Support</div>
+                        <div style="font-size:12px; color:#7c6fa0; margin-top:2px;">support@edupredict.edu</div>
+                        <div style="font-size:11px; color:#5a4f7a; margin-top:2px;">Response within 2 hours</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:14px; padding:16px; background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.15); border-radius:12px;">
+                    <div style="font-size:28px;">📞</div>
+                    <div>
+                        <div style="font-size:13px; font-weight:600; color:#e9d5ff;">Phone Support</div>
+                        <div style="font-size:12px; color:#7c6fa0; margin-top:2px;">+1 (800) EDU-PRED</div>
+                        <div style="font-size:11px; color:#5a4f7a; margin-top:2px;">Mon–Fri, 9AM–6PM</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:14px; padding:16px; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.15); border-radius:12px;">
+                    <div style="font-size:28px;">📖</div>
+                    <div>
+                        <div style="font-size:13px; font-weight:600; color:#e9d5ff;">Documentation</div>
+                        <div style="font-size:12px; color:#7c6fa0; margin-top:2px;">docs.edupredict.edu</div>
+                        <div style="font-size:11px; color:#5a4f7a; margin-top:2px;">User guides & tutorials</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function toggleFaq(el) {
+        const body = el.querySelector('.faq-body');
+        const arrow = el.querySelector('.faq-arrow');
+        const isOpen = body.style.display === 'block';
+        body.style.display = isOpen ? 'none' : 'block';
+        arrow.textContent = isOpen ? '▼' : '▲';
+    }
+</script>
+</body>
+</html>

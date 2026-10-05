@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Demand — EduPredict</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .bar-wrap  { height:6px; width:100%; background:rgba(255,255,255,0.06); border-radius:6px; overflow:hidden; }
+        .bar-fill  { height:100%; border-radius:6px; }
+        .bar-red   { background:linear-gradient(90deg,#ef4444,#f87171); }
+        .bar-blue  { background:linear-gradient(90deg,#7c3aed,#22d3ee); }
+        .growth-up   { color:#22c55e; font-size:12px; font-weight:600; }
+        .growth-down { color:#ef4444; font-size:12px; font-weight:600; }
+        .growth-flat { color:#6b5f8a; font-size:12px; }
+        .badge-low   { background:rgba(148,163,184,0.1); color:#cbd5e1; border:1px solid rgba(148,163,184,0.2); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+        .badge-merge { background:rgba(239,68,68,0.06); color:#fca5a5; border:1px solid rgba(239,68,68,0.2); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; display:inline-block; }
+        .course-code { color:#22d3ee; background:rgba(34,211,238,0.1); padding:3px 8px; border-radius:6px; font-weight:600; font-family:monospace; }
+    </style>
+</head>
+<body>
+
+{% set active_page = 'course_demand' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">&#8592; <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">Course Demand Forecasting</div>
+                <div class="topbar-sub">ML enrollment projection &amp; faculty capacity planning</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="status-dot">Fall 2026 Batch</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+        {% endfor %}{% endif %}{% endwith %}
+
+        <!-- STAT CARDS -->
+        {% set total       = courses|length %}
+        {% set overcap     = courses|selectattr('projected','gt', courses|map(attribute='capacity')|list|first)|list|length %}
+        {% set total_proj  = courses|sum(attribute='projected') %}
+        {% set new_secs    = courses|selectattr('recommended_sections','gt',0)|sum(attribute='recommended_sections') %}
+
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <div class="stat-icon purple">&#128202;</div>
+                <div class="stat-value" style="color:#c084fc;">{{ total }}</div>
+                <div class="stat-label">Active Forecast Tracks</div>
+                <div class="stat-change up">&#8593; 99.2% Model Confidence</div>
+            </div>
+            <div class="stat-card pink">
+                <div class="stat-icon pink">&#9888;&#65039;</div>
+                <div class="stat-value" style="color:#ec4899;">
+                    {{ courses|selectattr('status','equalto','Overcapacity Risk')|list|length }}
+                </div>
+                <div class="stat-label">Overcapacity Alerts</div>
+                <div class="stat-change down">&#8593; Core Big Data Labs</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-icon cyan">&#128101;</div>
+                <div class="stat-value" style="color:#22d3ee;">{{ total_proj }}</div>
+                <div class="stat-label">Projected Next Term Seats</div>
+                <div class="stat-change up">&#8593; +32.4% vs Last Year</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon green">&#127963;&#65039;</div>
+                <div class="stat-value" style="color:#22c55e;">+{{ new_secs }}</div>
+                <div class="stat-label">New Lab Sections Required</div>
+                <div class="stat-change up">&#10003; Resource Optimized</div>
+            </div>
+        </div>
+
+        <!-- WARNING BANNER -->
+        <div class="alert alert-warning">
+            <span style="font-size:18px;">&#9888;&#65039;</span>
+            <div>
+                <strong style="color:#fde047;">Overcapacity Risk Identified for Next Semester</strong>
+                <div style="font-size:12px;color:#fef08a;margin-top:2px;">
+                    Core Big Data &amp; Machine Learning courses are projected to exceed classroom lab capacities by over 45%. Additional lab sections are recommended.
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECTIONS TABLE -->
+        <div class="card" style="padding:0;overflow:hidden;">
+            <div style="padding:18px 24px;border-bottom:1px solid rgba(168,85,247,0.1);display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div class="card-title" style="margin-bottom:0;">Departmental Enrollment Projections</div>
+                    <div class="card-sub" style="margin-bottom:0;">Predictive analytics applied over prerequisite pass rates &amp; historical admissions</div>
+                </div>
+                <span class="badge badge-purple">Fall 2026 Batch</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Title</th>
+                            <th>Department</th>
+                            <th>Capacity</th>
+                            <th>Projected Demand</th>
+                            <th>Growth</th>
+                            <th>Status</th>
+                            <th>Recommended Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td><code class="course-code">{{ course.code }}</code></td>
+                            <td style="font-weight:600;color:#f1f0ff;">{{ course.name }}</td>
+                            <td style="color:#6b5f8a;">{{ course.dept }}</td>
+                            <td style="font-weight:600;color:#c4b8e8;">{{ course.capacity }} seats</td>
+                            <td style="min-width:180px;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+                                    <strong style="color:#c084fc;">{{ course.projected }} students</strong>
+                                    <span style="color:#6b5f8a;">
+                                        {% if course.capacity %}{{ ((course.projected / course.capacity) * 100)|round|int }}{% else %}0{% endif %}%
+                                    </span>
+                                </div>
+                                <div class="bar-wrap">
+                                    {% if course.projected > course.capacity %}
+                                    <div class="bar-fill bar-red" style="width:100%;"></div>
+                                    {% else %}
+                                    {% set pct = ((course.projected / course.capacity) * 100)|round|int if course.capacity else 0 %}
+                                    <div class="bar-fill bar-blue" data-pct="{{ pct }}"></div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if course.growth > 0 %}
+                                    <span class="growth-up">&#8593; +{{ course.growth }}%</span>
+                                {% elif course.growth < 0 %}
+                                    <span class="growth-down">&#8595; {{ course.growth }}%</span>
+                                {% else %}
+                                    <span class="growth-flat">{{ course.growth }}%</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if course.status == 'Overcapacity Risk' or course.projected > course.capacity %}
+                                    <span class="badge badge-danger">Overcapacity</span>
+                                {% elif course.status == 'High Demand' %}
+                                    <span class="badge badge-warning">High Demand</span>
+                                {% elif course.status == 'Under-enrolled' %}
+                                    <span class="badge-low">Low Demand</span>
+                                {% else %}
+                                    <span class="badge badge-success">Optimal</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if course.recommended_sections > 0 %}
+                                    <span class="badge badge-purple">+{{ course.recommended_sections }} New Section(s)</span>
+                                {% elif course.recommended_sections < 0 %}
+                                    <span class="badge-merge">Merge Classes</span>
+                                {% else %}
+                                    <span class="badge badge-success">Seats Adequate</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align:center;padding:40px;color:#6b5f8a;">
+                                <div style="font-size:32px;margin-bottom:10px;">&#128202;</div>
+                                No course demand data found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.bar-fill[data-pct]').forEach(function(el) {
+        el.style.width = el.getAttribute('data-pct') + '%';
+    });
+</script>
+</body>
+</html>

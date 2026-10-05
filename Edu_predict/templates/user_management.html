@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management — EduPredict</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .user-avatar-sm {
+            width:34px; height:34px; border-radius:9px;
+            background:linear-gradient(135deg,#7c3aed,#a855f7);
+            display:flex; align-items:center; justify-content:center;
+            font-size:13px; font-weight:800; color:#fff; flex-shrink:0;
+        }
+        .badge-student {
+            background:rgba(34,211,238,0.1); color:#22d3ee;
+            border:1px solid rgba(34,211,238,0.25);
+            padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;
+        }
+        .toggle-btn {
+            background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.25);
+            color:#c084fc; padding:5px 12px; border-radius:8px;
+            font-size:12px; font-weight:600; text-decoration:none; transition:all .2s;
+            display:inline-block; white-space:nowrap;
+        }
+        .toggle-btn:hover { background:rgba(168,85,247,0.2); }
+        .modal-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,0.7); z-index:200;
+            align-items:center; justify-content:center;
+            backdrop-filter:blur(6px);
+            padding:16px;
+        }
+        .modal-box {
+            background:linear-gradient(135deg,#0c0820,#080518);
+            border:1px solid rgba(168,85,247,0.25);
+            border-radius:20px; padding:28px;
+            width:100%; max-width:460px; position:relative;
+            max-height:90vh; overflow-y:auto;
+        }
+        .modal-top-line {
+            position:absolute; top:0; left:0; right:0; height:1px;
+            background:linear-gradient(90deg,transparent,rgba(168,85,247,0.5),transparent);
+            border-radius:20px 20px 0 0;
+        }
+        .modal-close {
+            background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+            color:#6b5f8a; width:32px; height:32px; border-radius:8px;
+            cursor:pointer; font-size:16px; display:flex;
+            align-items:center; justify-content:center; flex-shrink:0;
+        }
+        .add-user-btn {
+            background:linear-gradient(135deg,#7c3aed,#a855f7);
+            color:#fff; border:none; padding:10px 22px;
+            border-radius:11px; font-size:14px; font-weight:700;
+            cursor:pointer; font-family:inherit;
+            box-shadow:0 4px 20px rgba(124,58,237,0.4); transition:all .25s;
+            white-space:nowrap;
+        }
+        .add-user-btn:hover { box-shadow:0 6px 28px rgba(124,58,237,0.6); transform:translateY(-2px); }
+
+        /* Mobile user cards (hidden on desktop) */
+        .user-card-mobile {
+            display:none;
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.07);
+            border-radius:14px; padding:16px;
+            margin-bottom:10px;
+        }
+        .user-card-mobile:hover { border-color:rgba(168,85,247,0.2); }
+        .ucm-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+        .ucm-info { flex:1; min-width:0; }
+        .ucm-name { font-weight:700; color:#f1f0ff; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .ucm-email { font-size:11px; color:#6b5f8a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .ucm-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:12px; }
+        .ucm-label { color:#6b5f8a; font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:.5px; }
+        .ucm-footer { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); }
+
+        @media (max-width: 768px) {
+            .table-wrapper { display:none; }
+            .user-card-mobile { display:block; }
+            .add-user-btn { width:100%; text-align:center; }
+            .table-header-row { flex-direction:column; align-items:flex-start !important; gap:10px; }
+        }
+        @media (max-width: 480px) {
+            .modal-box { padding:20px 16px; }
+            .stats-grid { grid-template-columns:1fr 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+{% set active_page = 'users' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">&#8592; <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">User Management &amp; RBAC</div>
+                <div class="topbar-sub">Role-Based Access Control &#8212; SRS Functional Requirement #1</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="status-dot">{{ session['role'] }}</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+        {% endfor %}{% endif %}{% endwith %}
+
+        <!-- Role Counters -->
+        <div class="stats-grid">
+            <div class="stat-card pink">
+                <div class="stat-icon pink">&#128737;&#65039;</div>
+                <div class="stat-value" style="color:#ec4899;">{{ role_counts.admin }}</div>
+                <div class="stat-label">Administrators</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon green">&#128104;&#8205;&#127979;</div>
+                <div class="stat-value" style="color:#22c55e;">{{ role_counts.teacher }}</div>
+                <div class="stat-label">Teachers &amp; Faculty</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-icon cyan">&#128202;</div>
+                <div class="stat-value" style="color:#22d3ee;">{{ role_counts.analyst }}</div>
+                <div class="stat-label">Data Analysts</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-icon purple">&#127891;</div>
+                <div class="stat-value" style="color:#c084fc;">{{ role_counts.student }}</div>
+                <div class="stat-label">Students Registered</div>
+            </div>
+        </div>
+
+        <!-- Add User Button -->
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+            <button class="add-user-btn" onclick="document.getElementById('addUserModal').style.display='flex'">
+                &#10133; Add New User
+            </button>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card" style="padding:0;overflow:hidden;">
+            <div class="table-header-row" style="padding:18px 24px;border-bottom:1px solid rgba(168,85,247,0.1);display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div class="card-title" style="margin-bottom:0;">System Users &amp; Privileges</div>
+                    <div class="card-sub" style="margin-bottom:0;">All registered users with role assignments</div>
+                </div>
+                <span class="badge badge-purple">{{ users|length }} Users</span>
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="table-wrapper" style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User Name &amp; Email</th>
+                            <th>Assigned Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Last Active</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td style="color:#7c6fa0;font-family:monospace;font-size:12px;">{{ user.id }}</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div class="user-avatar-sm">{{ user.name[0]|upper }}</div>
+                                    <div>
+                                        <div style="font-weight:700;color:#f1f0ff;font-size:13px;">{{ user.name }}</div>
+                                        <div style="font-size:11px;color:#6b5f8a;">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.role == 'Administrator' %}
+                                    <span class="badge badge-danger">&#128737;&#65039; Administrator</span>
+                                {% elif user.role == 'Teacher' %}
+                                    <span class="badge badge-success">&#128104;&#8205;&#127979; Teacher</span>
+                                {% elif user.role == 'Analyst' %}
+                                    <span class="badge badge-purple">&#128202; Analyst</span>
+                                {% else %}
+                                    <span class="badge-student">&#127891; Student</span>
+                                {% endif %}
+                            </td>
+                            <td style="color:#c4b8e8;">{{ user.department }}</td>
+                            <td>
+                                {% if user.status == 'Active' %}
+                                    <span class="badge badge-success">Active</span>
+                                {% else %}
+                                    <span class="badge badge-warning">{{ user.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="color:#6b5f8a;font-size:12px;">{{ user.last_active }}</td>
+                            <td>
+                                <a href="{{ url_for('toggle_user_status', user_id=user.id) }}" class="toggle-btn">Toggle Status</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div style="padding:12px;">
+                {% for user in users %}
+                <div class="user-card-mobile">
+                    <div class="ucm-header">
+                        <div class="user-avatar-sm">{{ user.name[0]|upper }}</div>
+                        <div class="ucm-info">
+                            <div class="ucm-name">{{ user.name }}</div>
+                            <div class="ucm-email">{{ user.email }}</div>
+                        </div>
+                        <span style="color:#7c6fa0;font-family:monospace;font-size:11px;">{{ user.id }}</span>
+                    </div>
+                    <div class="ucm-row">
+                        <span class="ucm-label">Role</span>
+                        {% if user.role == 'Administrator' %}
+                            <span class="badge badge-danger">&#128737;&#65039; Administrator</span>
+                        {% elif user.role == 'Teacher' %}
+                            <span class="badge badge-success">&#128104;&#8205;&#127979; Teacher</span>
+                        {% elif user.role == 'Analyst' %}
+                            <span class="badge badge-purple">&#128202; Analyst</span>
+                        {% else %}
+                            <span class="badge-student">&#127891; Student</span>
+                        {% endif %}
+                    </div>
+                    <div class="ucm-row">
+                        <span class="ucm-label">Department</span>
+                        <span style="color:#c4b8e8;">{{ user.department }}</span>
+                    </div>
+                    <div class="ucm-row">
+                        <span class="ucm-label">Last Active</span>
+                        <span style="color:#6b5f8a;font-size:11px;">{{ user.last_active or 'N/A' }}</span>
+                    </div>
+                    <div class="ucm-footer">
+                        {% if user.status == 'Active' %}
+                            <span class="badge badge-success">&#9679; Active</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ user.status }}</span>
+                        {% endif %}
+                        <a href="{{ url_for('toggle_user_status', user_id=user.id) }}" class="toggle-btn">Toggle Status</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-top-line"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div>
+                <div style="font-size:16px;font-weight:800;color:#f1f0ff;">&#10133; Add New User</div>
+                <div style="font-size:12px;color:#6b5f8a;margin-top:2px;">Create a new system account</div>
+            </div>
+            <button class="modal-close" onclick="document.getElementById('addUserModal').style.display='none'">&#10005;</button>
+        </div>
+        <form method="POST" action="/users/add">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" placeholder="e.g. John Smith" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="user@institution.edu" required>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Choose a username" required>
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select name="role">
+                    <option value="Administrator">Administrator</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="Analyst">Analyst</option>
+                    <option value="Student" selected>Student</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Department</label>
+                <input type="text" name="department" placeholder="e.g. Computer Science">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Min 8 characters" required>
+            </div>
+            <button type="submit">Create User &#8594;</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">🎓</div>
+        <h2>EduPredict</h2>
+        <p>Analytics Platform</p>
+    </div>
+    <div class="sidebar-section">Main</div>
+    <nav>
+        {% if 'dashboard' in access %}
+        <a href="/dashboard" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}"><span class="icon">📊</span> Dashboard</a>
+        {% endif %}
+
+        {% if 'predict' in access %}
+        <a href="/predict" class="nav-link {% if active_page == 'predict' %}active{% endif %}"><span class="icon">🤖</span> Predictor</a>
+        {% endif %}
+
+        <!-- SRS Module: Course Demand Forecasting -->
+        {% if 'course_demand' in access %}
+        <a href="/course-demand" class="nav-link {% if active_page == 'course_demand' %}active{% endif %}"><span class="icon">📈</span> Course Demand</a>
+        {% endif %}
+
+        <!-- SRS Module: ML Model Diagnostics -->
+        {% if 'models' in access %}
+        <a href="/models" class="nav-link {% if active_page == 'models' %}active{% endif %}"><span class="icon">⚙️</span> Model Metrics</a>
+        {% endif %}
+
+        {% if 'alerts' in access %}
+        <a href="/alerts" class="nav-link {% if active_page == 'alerts' %}active{% endif %}"><span class="icon">🔔</span> Alerts</a>
+        {% endif %}
+
+        {% if 'students' in access %}
+        <a href="/students" class="nav-link {% if active_page == 'students' %}active{% endif %}"><span class="icon">👥</span> Students</a>
+        {% endif %}
+
+        <!-- SRS Module: User Management & RBAC -->
+        {% if 'users' in access %}
+        <a href="/users" class="nav-link {% if active_page == 'users' %}active{% endif %}"><span class="icon">🛡️</span> User Management</a>
+        {% endif %}
+
+        {% if 'reports' in access %}
+        <a href="/reports" class="nav-link {% if active_page == 'reports' %}active{% endif %}"><span class="icon">📋</span> Reports</a>
+        {% endif %}
+
+        {% if 'ingest' in access or 'storage' in access or 'realtime' in access %}
+        <div class="sidebar-section">Data & Hadoop</div>
+        {% endif %}
+
+        {% if 'ingest' in access %}
+        <a href="/ingest" class="nav-link {% if active_page == 'ingest' %}active{% endif %}"><span class="icon">📥</span> Data Ingestion</a>
+        {% endif %}
+
+        {% if 'storage' in access %}
+        <a href="/storage" class="nav-link {% if active_page == 'storage' %}active{% endif %}"><span class="icon">🗄️</span> Data Storage</a>
+        {% endif %}
+
+        {% if 'performance' in access %}
+        <a href="/performance" class="nav-link {% if active_page == 'performance' %}active{% endif %}"><span class="icon">📉</span> Performance</a>
+        {% endif %}
+
+        {% if 'security' in access %}
+        <a href="/security" class="nav-link {% if active_page == 'security' %}active{% endif %}"><span class="icon">🔒</span> Security</a>
+        {% endif %}
+
+        {% if 'realtime' in access %}
+        <a href="/realtime" class="nav-link {% if active_page == 'realtime' %}active{% endif %}"><span class="icon">⚡</span> Real-Time</a>
+        {% endif %}
+
+        {% if 'feedback' in access %}
+        <div class="sidebar-section">Help</div>
+        <a href="/feedback" class="nav-link {% if active_page == 'feedback' %}active{% endif %}"><span class="icon">💬</span> Support</a>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-pill">
+            <div class="user-avatar">
+                {{ (session['user'][0] if session.get('user') else 'U')|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ session.get('user', 'Guest') }}</div>
+                <div class="user-role">{{ session.get('role', 'User') }}</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-btn">🚪 Sign Out</a>
+        <a href="/profile" class="logout-btn" style="background:rgba(168,85,247,0.08);border-color:rgba(168,85,247,0.2);color:#c084fc;margin-top:6px;">👤 My Profile</a>
+    </div>
+</aside>
+
+<!-- ══ WELCOME BAR ══════════════════════════════════════════════════════ -->
+<style>
+.welcome-bar {
+    position: fixed;
+    top: 0; left: var(--sidebar-w); right: 0;
+    height: 42px;
+    background: linear-gradient(90deg, #1e3a5f, #1a4a7a, #1e3a5f);
+    border-bottom: 1px solid rgba(34,211,238,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 99;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+}
+.welcome-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+}
+.welcome-bar-left .wb-icon {
+    font-size: 16px;
+}
+.welcome-bar-left span.wb-name {
+    color: #67e8f9;
+}
+.welcome-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.wb-module {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+}
+.wb-module strong {
+    color: #67e8f9;
+    font-size: 14px;
+}
+.wb-badge {
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.wb-badge.Administrator { background: rgba(239,68,68,0.25);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+.wb-badge.Teacher       { background: rgba(34,197,94,0.2);   color: #86efac; border: 1px solid rgba(34,197,94,0.4); }
+.wb-badge.Analyst       { background: rgba(168,85,247,0.2);  color: #c084fc; border: 1px solid rgba(168,85,247,0.4); }
+.wb-badge.Student       { background: rgba(34,211,238,0.15); color: #67e8f9; border: 1px solid rgba(34,211,238,0.3); }
+
+/* Push main content down so it doesn't hide under welcome bar */
+.main { padding-top: 42px !important; }
+.topbar { top: 42px !important; }
+
+@media (max-width: 768px) {
+    .welcome-bar { left: 0; }
+    .wb-module   { display: none; }
+}
+</style>
+
+{% if session.get('user') %}
+<div class="welcome-bar">
+    <div class="welcome-bar-left">
+        <span class="wb-icon">👋</span>
+        Welcome, &nbsp;<span class="wb-name">{{ session.get('user', 'User') | title }}</span>
+    </div>
+    <div class="welcome-bar-right">
+        <span class="wb-module">Module: &nbsp;<strong>{{ session.get('role', '') }}</strong></span>
+        <span class="wb-badge {{ session.get('role', 'Student') }}">{{ session.get('role', 'User') }}</span>
+    </div>
+</div>
+{% endif %}
+<!-- ════════════════════════════════════════════════════════════════════ -->
+
+<script>
+if (!document.getElementById('neon3d-bg')) {
+    var sharedNeonCanvas = document.createElement('canvas');
+    sharedNeonCanvas.id = 'neon3d-bg';
+    sharedNeonCanvas.setAttribute('aria-hidden', 'true');
+    sharedNeonCanvas.dataset.sharedCreated = 'true';
+    document.body.prepend(sharedNeonCanvas);
+}
+(function () {
+    var neonCanvas = document.getElementById('neon3d-bg');
+    if (!neonCanvas || neonCanvas.dataset.sharedCreated !== 'true') return;
+    neonCanvas.dataset.animated = 'true';
+    var neonContext = neonCanvas.getContext('2d');
+    var neonWidth = 0;
+    var neonHeight = 0;
+    var neonFrame = 0;
+    var neonNodes = Array.from({ length: 42 }, function (_, index) {
+        return { angle: (index / 42) * Math.PI * 2, radius: 0.25 + (index % 7) * 0.045, speed: 0.00035 + (index % 5) * 0.00008, depth: 0.35 + (index % 4) * 0.16 };
+    });
+    function resizeNeonCanvas() {
+        var pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        neonWidth = window.innerWidth;
+        neonHeight = window.innerHeight;
+        neonCanvas.width = neonWidth * pixelRatio;
+        neonCanvas.height = neonHeight * pixelRatio;
+        neonContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    }
+    function drawNeon3d() {
+        neonFrame += 1;
+        neonContext.clearRect(0, 0, neonWidth, neonHeight);
+        var horizon = neonHeight * 0.58;
+        var centerX = neonWidth * 0.68;
+        var vanishingY = neonHeight * 0.34;
+        neonContext.lineWidth = 1;
+        neonContext.strokeStyle = 'rgba(34, 211, 238, 0.12)';
+        for (var line = -10; line <= 10; line += 1) {
+            neonContext.beginPath();
+            neonContext.moveTo(centerX + line * 48, horizon);
+            neonContext.lineTo(centerX + line * 230, neonHeight);
+            neonContext.stroke();
+        }
+        for (var row = 0; row < 9; row += 1) {
+            var progress = (row * 0.12 + neonFrame * 0.0012) % 1;
+            var y = vanishingY + Math.pow(progress, 2) * (neonHeight - vanishingY);
+            neonContext.beginPath();
+            neonContext.moveTo(0, y);
+            neonContext.lineTo(neonWidth, y);
+            neonContext.stroke();
+        }
+        neonNodes.forEach(function (node, index) {
+            node.angle += node.speed;
+            var x = centerX + Math.cos(node.angle) * neonWidth * node.radius;
+            var y = vanishingY + (0.5 + Math.sin(node.angle * 1.7) * 0.35) * neonHeight * node.depth;
+            neonContext.beginPath();
+            neonContext.fillStyle = index % 3 === 0 ? 'rgba(167, 139, 250, 0.78)' : 'rgba(34, 211, 238, 0.72)';
+            neonContext.shadowBlur = 12;
+            neonContext.shadowColor = neonContext.fillStyle;
+            neonContext.arc(x, y, 1.5 + (index % 3), 0, Math.PI * 2);
+            neonContext.fill();
+        });
+        neonContext.shadowBlur = 0;
+        window.requestAnimationFrame(drawNeon3d);
+    }
+    resizeNeonCanvas();
+    window.addEventListener('resize', resizeNeonCanvas);
+    drawNeon3d();
+}());
+
+function openSidebar(){
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if(sb) sb.classList.add('open');
+    if(ov) ov.classList.add('show');
+}
+function closeSidebar(){
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebarOverlay');
+    if(sb) sb.classList.remove('open');
+    if(ov) ov.classList.remove('show');
+}
+// ── SCROLL REVEAL ──
+(function(){
+    var els = document.querySelectorAll('.card,.stat-card,.data-table tr,.badge');
+    els.forEach(function(el){ el.classList.add('reveal'); });
+    var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+    },{threshold:0.08});
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(function(el){ io.observe(el); });
+})();
+</script>

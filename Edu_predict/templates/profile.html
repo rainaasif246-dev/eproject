@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — EduPredict</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.4rem; align-items: start; }
+
+        .profile-card {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 2rem; text-align: center;
+            position: sticky; top: 80px;
+        }
+        .profile-avatar-wrap { position: relative; display: inline-block; margin-bottom: 1.2rem; }
+        .profile-avatar {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: linear-gradient(135deg, #BA8631, #F3C66B);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 900; color: #0a0800; margin: 0 auto;
+            box-shadow: 0 0 30px rgba(212,146,42,.5);
+        }
+        .avatar-ring {
+            position: absolute; inset: -4px; border-radius: 50%;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg,#BA8631,#F3C66B) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out; mask-composite: exclude;
+            animation: spin 6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .profile-name { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: .3rem; }
+        .profile-role-badge {
+            display: inline-block; padding: .3rem .9rem; border-radius: 20px;
+            font-size: .78rem; font-weight: 700;
+            background: rgba(212,146,42,.12); border: 1px solid rgba(212,146,42,.3); color: #F3C66B;
+            margin-bottom: 1.2rem;
+        }
+
+        .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-bottom: 1.4rem; }
+        .p-stat { background: rgba(212,146,42,.06); border: 1px solid rgba(212,146,42,.1); border-radius: 12px; padding: .8rem; }
+        .p-stat-val { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+        .p-stat-lbl { font-size: .72rem; color: var(--muted); margin-top: .15rem; }
+
+        .access-list { text-align: left; }
+        .access-list h4 { font-size: .78rem; font-weight: 700; color: rgba(212,146,42,.6); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .7rem; }
+        .access-tag {
+            display: inline-flex; align-items: center; gap: .3rem;
+            padding: .25rem .65rem; border-radius: 8px; font-size: .75rem; font-weight: 600;
+            background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); color: #4ade80;
+            margin: .2rem .2rem .2rem 0;
+        }
+
+        .right-col { display: flex; flex-direction: column; gap: 1.4rem; }
+
+        .section-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 1.6rem; }
+        .section-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: .3rem; }
+        .section-card p  { font-size: .8rem; color: var(--muted); margin-bottom: 1.4rem; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .info-item label { font-size: .72rem; font-weight: 700; color: rgba(168,85,247,.6); text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: .4rem; }
+        .info-val { font-size: .9rem; color: var(--text); background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: .65rem 1rem; }
+
+        .input-wrap { position: relative; }
+        .input-wrap .i-icon { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); font-size: .9rem; pointer-events: none; }
+        .input-wrap input { padding-left: 2.5rem; }
+        .pw-toggle { position: absolute; right: .9rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: .9rem; padding: 0; width: auto; }
+        .pw-toggle:hover { color: var(--purple3); }
+
+        .activity-item { display: flex; align-items: flex-start; gap: .9rem; padding: .8rem 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+        .activity-item:last-child { border-bottom: none; }
+        .act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+        .act-dot.success { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .act-dot.info    { background: #a855f7; box-shadow: 0 0 6px #a855f7; }
+        .act-dot.warning { background: #f97316; box-shadow: 0 0 6px #f97316; }
+        .act-text { font-size: .85rem; color: var(--text); }
+        .act-time { font-size: .75rem; color: var(--muted); margin-top: .15rem; }
+
+        .save-btn {
+            display: inline-flex; align-items: center; gap: .5rem;
+            padding: .7rem 1.8rem; border-radius: 11px;
+            background: linear-gradient(135deg,#BA8631,#D4922A,#F3C66B);
+            color: #0a0800; font-weight: 800; font-size: .9rem; border: none;
+            cursor: pointer; font-family: inherit;
+            box-shadow: 0 4px 20px rgba(212,146,42,.4);
+            transition: all .25s; width: auto;
+        }
+        .save-btn:hover { box-shadow: 0 6px 28px rgba(212,146,42,.6); transform: translateY(-2px); }
+
+        @media(max-width:900px){ .profile-layout{grid-template-columns:1fr;} .profile-card{position:static;} }
+        @media(max-width:500px){ .info-grid{grid-template-columns:1fr;} .profile-stats{grid-template-columns:1fr 1fr;} }
+    </style>
+</head>
+<body>
+{% set active_page = 'profile' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">My Profile</div>
+                <div class="topbar-sub">Manage your account settings</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="status-dot">{{ session['role'] }}</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+        {% endfor %}{% endif %}{% endwith %}
+
+        <div class="profile-layout">
+
+            <!-- Left: Profile Card -->
+            <div class="profile-card">
+                <div class="profile-avatar-wrap">
+                    <div class="avatar-ring"></div>
+                    <div class="profile-avatar">{{ session['user'][0]|upper }}</div>
+                </div>
+                <div class="profile-name">{{ session['user']|title }}</div>
+                <div class="profile-role-badge">{{ session['role'] }}</div>
+
+                <div class="profile-stats">
+                    <div class="p-stat">
+                        <div class="p-stat-val">{{ user_data.access|length }}</div>
+                        <div class="p-stat-lbl">Pages Access</div>
+                    </div>
+                    <div class="p-stat">
+                        <div class="p-stat-val">Active</div>
+                        <div class="p-stat-lbl">Status</div>
+                    </div>
+                    <div class="p-stat">
+                        <div class="p-stat-val">2025</div>
+                        <div class="p-stat-lbl">Joined</div>
+                    </div>
+                    <div class="p-stat">
+                        <div class="p-stat-val">✅</div>
+                        <div class="p-stat-lbl">Verified</div>
+                    </div>
+                </div>
+
+                <div class="access-list">
+                    <h4>🔑 Page Access</h4>
+                    {% for page in user_data.access %}
+                    <span class="access-tag">✓ {{ page|title }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right: Forms -->
+            <div class="right-col">
+
+                <!-- Account Info -->
+                <div class="section-card">
+                    <h3>👤 Account Information</h3>
+                    <p>Your account details and role assignment</p>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Username</label>
+                            <div class="info-val">{{ session['user'] }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Role</label>
+                            <div class="info-val">{{ session['role'] }}</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Email</label>
+                            <div class="info-val">{{ session['user'] }}@edupredict.ai</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Account Status</label>
+                            <div class="info-val" style="color:#22c55e;">● Active</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Profile -->
+                <div class="section-card">
+                    <h3>✏️ Edit Profile</h3>
+                    <p>Update your display name and contact info</p>
+                    <form method="POST" action="/profile">
+                        <input type="hidden" name="action" value="update_info">
+                        <div class="info-grid" style="margin-bottom:1rem;">
+                            <div class="form-group" style="margin:0;">
+                                <label>Display Name</label>
+                                <input type="text" name="display_name" value="{{ session['user']|title }}" placeholder="Your name">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label>Email</label>
+                                <input type="email" name="email" value="{{ session['user'] }}@edupredict.ai" placeholder="Email">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label>Department</label>
+                                <input type="text" name="department" placeholder="e.g. Computer Science">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label>Phone</label>
+                                <input type="text" name="phone" placeholder="+92 300 0000000">
+                            </div>
+                        </div>
+                        <button type="submit" class="save-btn">💾 Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Change Password -->
+                <div class="section-card">
+                    <h3>🔒 Change Password</h3>
+                    <p>Update your password — minimum 8 characters required</p>
+                    <form method="POST" action="/profile">
+                        <input type="hidden" name="action" value="change_password">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <div class="input-wrap">
+                                <span class="i-icon">🔑</span>
+                                <input type="password" name="current_password" id="cpw" placeholder="Enter current password">
+                                <button type="button" class="pw-toggle" onclick="togglePw('cpw',this)">👁️</button>
+                            </div>
+                        </div>
+                        <div class="info-grid">
+                            <div class="form-group" style="margin:0;">
+                                <label>New Password</label>
+                                <div class="input-wrap">
+                                    <span class="i-icon">🔒</span>
+                                    <input type="password" name="new_password" id="npw" placeholder="New password" oninput="checkStrength(this.value)">
+                                    <button type="button" class="pw-toggle" onclick="togglePw('npw',this)">👁️</button>
+                                </div>
+                                <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.06);margin-top:.4rem;overflow:hidden;">
+                                    <div id="strengthFill" style="height:100%;border-radius:2px;transition:width .3s,background .3s;width:0;"></div>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label>Confirm New Password</label>
+                                <div class="input-wrap">
+                                    <span class="i-icon">🔒</span>
+                                    <input type="password" name="confirm_password" id="cpw2" placeholder="Repeat new password">
+                                    <button type="button" class="pw-toggle" onclick="togglePw('cpw2',this)">👁️</button>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <button type="submit" class="save-btn">🔐 Update Password</button>
+                    </form>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="section-card">
+                    <h3>📋 Recent Activity</h3>
+                    <p>Your last actions on the platform</p>
+                    <div class="activity-item">
+                        <div class="act-dot success"></div>
+                        <div><div class="act-text">Logged in successfully</div><div class="act-time">Today, 09:14 AM</div></div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="act-dot info"></div>
+                        <div><div class="act-text">Ran exam score prediction — Result: 74.2%</div><div class="act-time">Today, 09:10 AM</div></div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="act-dot info"></div>
+                        <div><div class="act-text">Viewed student list — 50 records</div><div class="act-time">Today, 09:05 AM</div></div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="act-dot warning"></div>
+                        <div><div class="act-text">Alert triggered — Student #4821 low attendance</div><div class="act-time">Yesterday, 08:50 PM</div></div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="act-dot success"></div>
+                        <div><div class="act-text">Submitted support ticket #TKT-0042</div><div class="act-time">Yesterday, 03:22 PM</div></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePw(id, btn) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+    btn.textContent = el.type === 'password' ? '👁️' : '🙈';
+}
+function checkStrength(val) {
+    const fill = document.getElementById('strengthFill');
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const colors = ['#ef4444','#f97316','#eab308','#22c55e'];
+    fill.style.width = (score * 25) + '%';
+    fill.style.background = colors[score - 1] || 'transparent';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="DFD Level-0 Context Diagram">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="2" value="DFD Level-0: Context Diagram — EduPredict System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#0050ef;" vertex="1" parent="1">
+          <mxGeometry x="200" y="20" width="700" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Central System (circle) -->
+        <mxCell id="3" value="EduPredict&#xa;System" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="400" y="320" width="200" height="200" as="geometry"/>
+        </mxCell>
+
+        <!-- External Entities (rectangles) -->
+        <mxCell id="4" value="Administrator" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="5" value="Teacher" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="390" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="6" value="Student" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="660" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="7" value="Analyst" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="100" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="8" value="Data Sources&#xa;(CSV / Stream)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="660" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows: Admin -->
+        <mxCell id="9" value="Manage Users, Ingestion" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="4" target="3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="System Reports, Alerts" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="3" target="4" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows: Teacher -->
+        <mxCell id="11" value="View Predictions, Students" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="5" target="3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="Alerts, Reports" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="3" target="5" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows: Student -->
+        <mxCell id="13" value="Student Input Data" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="6" target="3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="Predictions, Feedback" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="3" target="6" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows: Analyst -->
+        <mxCell id="15" value="Data Queries, Analysis" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="7" target="3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="Analytics Dashboard" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="3" target="7" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows: Data Sources -->
+        <mxCell id="17" value="Raw Data Ingestion" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="8" target="3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="Processed Results" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="3" target="8" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

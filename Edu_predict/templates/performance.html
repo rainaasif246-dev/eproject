@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>EduPredict — Performance Monitor</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+{% set active_page = 'performance' %}
+{% include '_sidebar.html' %}
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">Performance Monitor</div>
+                <div class="topbar-sub">System resource utilization, latency &amp; data processing metrics</div>
+            </div>
+        </div>
+        <div class="topbar-right"><div class="status-dot">All Systems Operational</div></div>
+    </div>
+
+    <div class="page-content">
+
+        <!-- KPI STATS -->
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <div class="stat-icon purple">⚡</div>
+                <div class="stat-value" style="color:#c084fc;" id="liveLatency">12 ms</div>
+                <div class="stat-label">Avg Query Latency</div>
+                <div class="stat-change up" id="latencyStatus">↓ Below threshold</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon green">🖥️</div>
+                <div class="stat-value" style="color:#22c55e;" id="liveCPU">34%</div>
+                <div class="stat-label">CPU Utilization</div>
+                <div class="stat-change up" id="cpuStatus">↑ Normal range</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-icon cyan">💾</div>
+                <div class="stat-value" style="color:#22d3ee;" id="liveMemory">61%</div>
+                <div class="stat-label">Memory Usage</div>
+                <div class="stat-change up" id="memStatus">↑ Stable</div>
+            </div>
+            <div class="stat-card pink">
+                <div class="stat-icon pink">📡</div>
+                <div class="stat-value" style="color:#ec4899;" id="liveEvents">1,247/s</div>
+                <div class="stat-label">Events Processed</div>
+                <div class="stat-change up">↑ Live updating</div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">CPU &amp; Memory Utilization (Last 12h)</div>
+                <div class="card-sub">Hourly resource usage across cluster nodes</div>
+                <canvas id="resourceChart" height="220"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-title">Data Processing Throughput</div>
+                <div class="card-sub">Records processed per minute — batch vs stream</div>
+                <canvas id="throughputChart" height="220"></canvas>
+            </div>
+        </div>
+
+        <!-- LATENCY CHART -->
+        <div class="card">
+            <div class="card-title">Query Response Time (ms)</div>
+            <div class="card-sub">End-to-end latency for ML predictions, dashboard queries, and ingestion jobs</div>
+            <canvas id="latencyChart" height="120"></canvas>
+        </div>
+
+        <!-- PROCESSING JOBS TABLE -->
+        <div class="card">
+            <div class="card-title">Recent Processing Jobs</div>
+            <div class="card-sub">Batch and stream jobs with execution time and status</div>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Job ID</th><th>Type</th><th>Dataset</th><th>Records</th><th>Duration</th><th>CPU Peak</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family:monospace;color:#c084fc;">JOB-2841</td>
+                        <td>Batch — MapReduce</td>
+                        <td>Academic Records</td>
+                        <td>6,607</td>
+                        <td>2.1s</td>
+                        <td>42%</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;color:#c084fc;">JOB-2840</td>
+                        <td>Stream — Kafka</td>
+                        <td>LMS Activity</td>
+                        <td>142,300</td>
+                        <td>0.8s</td>
+                        <td>28%</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;color:#c084fc;">JOB-2839</td>
+                        <td>ML Inference</td>
+                        <td>Dropout Prediction</td>
+                        <td>50</td>
+                        <td>0.04s</td>
+                        <td>18%</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;color:#c084fc;">JOB-2838</td>
+                        <td>Batch — Spark</td>
+                        <td>Attendance Records</td>
+                        <td>89,450</td>
+                        <td>3.4s</td>
+                        <td>67%</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family:monospace;color:#c084fc;">JOB-2837</td>
+                        <td>Model Retrain</td>
+                        <td>Random Forest</td>
+                        <td>6,607</td>
+                        <td>18.2s</td>
+                        <td>89%</td>
+                        <td><span class="badge badge-warning">Running</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- OPTIMIZATION STRATEGIES -->
+        <div class="card">
+            <div class="card-title">Optimization Strategies</div>
+            <div class="card-sub">Active performance enhancements applied to the system</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;">
+                <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:12px;padding:16px;">
+                    <div style="font-size:22px;margin-bottom:8px;">🔀</div>
+                    <div style="font-size:13px;font-weight:700;color:#f0eeff;margin-bottom:4px;">Load Balancing</div>
+                    <div style="font-size:12px;color:#6b5f8a;line-height:1.6;">Round-robin distribution across 4 DataNodes. Prevents hotspot bottlenecks.</div>
+                </div>
+                <div style="background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.2);border-radius:12px;padding:16px;">
+                    <div style="font-size:22px;margin-bottom:8px;">📦</div>
+                    <div style="font-size:13px;font-weight:700;color:#f0eeff;margin-bottom:4px;">Data Partitioning</div>
+                    <div style="font-size:12px;color:#6b5f8a;line-height:1.6;">HDFS data partitioned by semester and department for fast retrieval.</div>
+                </div>
+                <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px;">
+                    <div style="font-size:22px;margin-bottom:8px;">⚡</div>
+                    <div style="font-size:13px;font-weight:700;color:#f0eeff;margin-bottom:4px;">Parallel Processing</div>
+                    <div style="font-size:12px;color:#6b5f8a;line-height:1.6;">MapReduce jobs split across nodes. Spark in-memory processing for ML.</div>
+                </div>
+                <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:16px;">
+                    <div style="font-size:22px;margin-bottom:8px;">🗜️</div>
+                    <div style="font-size:13px;font-weight:700;color:#f0eeff;margin-bottom:4px;">Data Compression</div>
+                    <div style="font-size:12px;color:#6b5f8a;line-height:1.6;">Snappy compression on HDFS blocks reduces I/O by ~40%.</div>
+                </div>
+                <div style="background:rgba(236,72,153,.06);border:1px solid rgba(236,72,153,.2);border-radius:12px;padding:16px;">
+                    <div style="font-size:22px;margin-bottom:8px;">🔁</div>
+                    <div style="font-size:13px;font-weight:700;color:#f0eeff;margin-bottom:4px;">Auto Backup</div>
+                    <div style="font-size:12px;color:#6b5f8a;line-height:1.6;">Automated daily backups with 3× HDFS replication for fault tolerance.</div>
+                </div>
+                <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:16px;">
+                    <div style="font-size:22px;margin-bottom:8px;">📈</div>
+                    <div style="font-size:13px;font-weight:700;color:#f0eeff;margin-bottom:4px;">Horizontal Scaling</div>
+                    <div style="font-size:12px;color:#6b5f8a;line-height:1.6;">Architecture supports adding DataNodes dynamically as data volume grows.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const hours = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+
+const resourceChartRef = new Chart(document.getElementById('resourceChart'), {
+    type: 'line',
+    data: {
+        labels: hours,
+        datasets: [
+            { label: 'CPU %', data: [28,34,42,38,55,67,45,34,29,31,36,34], borderColor: '#a855f7', backgroundColor: 'rgba(168,85,247,.1)', tension: 0.4, fill: true, pointRadius: 3 },
+            { label: 'Memory %', data: [55,57,60,62,65,68,64,61,59,60,62,61], borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,.08)', tension: 0.4, fill: true, pointRadius: 3 }
+        ]
+    },
+    options: { plugins: { legend: { labels: { color: '#c4b8e8' } } }, scales: { x: { ticks: { color: '#6b5f8a' }, grid: { color: 'rgba(255,255,255,.05)' } }, y: { ticks: { color: '#6b5f8a', callback: v => v+'%' }, grid: { color: 'rgba(255,255,255,.05)' }, max: 100 } } }
+});
+
+new Chart(document.getElementById('throughputChart'), {
+    type: 'bar',
+    data: {
+        labels: hours,
+        datasets: [
+            { label: 'Batch (rec/min)', data: [0,6607,0,0,89450,0,0,142300,0,0,6607,0], backgroundColor: 'rgba(168,85,247,.6)', borderRadius: 4 },
+            { label: 'Stream (rec/min)', data: [1200,1247,1180,1300,1247,1190,1220,1247,1200,1180,1247,1220], backgroundColor: 'rgba(34,211,238,.5)', borderRadius: 4 }
+        ]
+    },
+    options: { plugins: { legend: { labels: { color: '#c4b8e8' } } }, scales: { x: { ticks: { color: '#6b5f8a' }, grid: { color: 'rgba(255,255,255,.05)' } }, y: { ticks: { color: '#6b5f8a' }, grid: { color: 'rgba(255,255,255,.05)' } } } }
+});
+
+new Chart(document.getElementById('latencyChart'), {
+    type: 'line',
+    data: {
+        labels: hours,
+        datasets: [
+            { label: 'ML Prediction (ms)', data: [38,42,45,40,52,48,41,39,37,40,43,42], borderColor: '#a855f7', tension: 0.4, pointRadius: 3 },
+            { label: 'Dashboard Query (ms)', data: [12,14,18,13,22,19,15,12,11,13,14,12], borderColor: '#22c55e', tension: 0.4, pointRadius: 3 },
+            { label: 'Ingestion Job (ms)', data: [2100,0,0,0,3400,0,0,800,0,0,2100,0], borderColor: '#ec4899', tension: 0.4, pointRadius: 3 }
+        ]
+    },
+    options: { plugins: { legend: { labels: { color: '#c4b8e8' } } }, scales: { x: { ticks: { color: '#6b5f8a' }, grid: { color: 'rgba(255,255,255,.05)' } }, y: { ticks: { color: '#6b5f8a', callback: v => v+'ms' }, grid: { color: 'rgba(255,255,255,.05)' } } } }
+});
+
+// ── LIVE KPI UPDATES ──
+const cpuBase = 34, memBase = 61;
+const resourceDatasets = resourceChartRef.data.datasets;
+
+function updateLiveKPIs() {
+    const cpu = Math.max(10, Math.min(95, cpuBase + (Math.random() * 20 - 10)));
+    const mem = Math.max(40, Math.min(90, memBase + (Math.random() * 10 - 5)));
+    const lat = Math.floor(8 + Math.random() * 18);
+    const evts = Math.floor(1100 + Math.random() * 300);
+
+    document.getElementById('liveCPU').textContent = cpu.toFixed(1) + '%';
+    document.getElementById('liveMemory').textContent = mem.toFixed(1) + '%';
+    document.getElementById('liveLatency').textContent = lat + ' ms';
+    document.getElementById('liveEvents').textContent = evts.toLocaleString() + '/s';
+
+    document.getElementById('cpuStatus').textContent = cpu > 70 ? '⚠ High load' : '↑ Normal range';
+    document.getElementById('cpuStatus').style.color = cpu > 70 ? '#fbbf24' : '#22c55e';
+    document.getElementById('memStatus').textContent = mem > 80 ? '⚠ High usage' : '↑ Stable';
+    document.getElementById('memStatus').style.color = mem > 80 ? '#fbbf24' : '#22d3ee';
+    document.getElementById('latencyStatus').textContent = lat > 20 ? '⚠ Elevated' : '↓ Below threshold';
+
+    // push new point to resource chart
+    resourceDatasets[0].data.shift(); resourceDatasets[0].data.push(Math.round(cpu));
+    resourceDatasets[1].data.shift(); resourceDatasets[1].data.push(Math.round(mem));
+    resourceChartRef.update();
+}
+setInterval(updateLiveKPIs, 2500);
+</script>
+</body>
+</html>

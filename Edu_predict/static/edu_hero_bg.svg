@@ -1,0 +1,74 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#040B18"/>
+      <stop offset="0.35" stop-color="#081B2E"/>
+      <stop offset="0.7" stop-color="#0C233B"/>
+      <stop offset="1" stop-color="#040B18"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(350 250) rotate(90) scale(320 420)">
+      <stop stop-color="#67E8F9" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#67E8F9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1220 260) rotate(90) scale(360 440)">
+      <stop stop-color="#A855F7" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#A855F7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panel" x1="220" y1="150" x2="1180" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#BFEAF4" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#E7F8FF" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#EAF6FF" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#C5F2FF" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <ellipse cx="350" cy="220" rx="420" ry="310" fill="url(#glow1)"/>
+  <ellipse cx="1190" cy="330" rx="430" ry="350" fill="url(#glow2)"/>
+
+  <g opacity="0.38">
+    <path d="M0 760H1600" stroke="#7ED9F3" stroke-opacity="0.14" stroke-width="1"/>
+    <path d="M0 680H1600" stroke="#7ED9F3" stroke-opacity="0.12" stroke-width="1"/>
+    <path d="M0 600H1600" stroke="#7ED9F3" stroke-opacity="0.1" stroke-width="1"/>
+    <path d="M0 520H1600" stroke="#7ED9F3" stroke-opacity="0.1" stroke-width="1"/>
+    <path d="M0 440H1600" stroke="#7ED9F3" stroke-opacity="0.1" stroke-width="1"/>
+    <path d="M0 360H1600" stroke="#7ED9F3" stroke-opacity="0.08" stroke-width="1"/>
+    <path d="M0 280H1600" stroke="#7ED9F3" stroke-opacity="0.08" stroke-width="1"/>
+    <path d="M0 200H1600" stroke="#7ED9F3" stroke-opacity="0.08" stroke-width="1"/>
+  </g>
+
+  <g opacity="0.33">
+    <path d="M200 180H1160V720H200V180Z" stroke="#6EE7F9" stroke-opacity="0.18" stroke-width="2"/>
+    <path d="M310 250H1040V640H310V250Z" fill="url(#panel)" stroke="#C3F6FF" stroke-opacity="0.18"/>
+  </g>
+
+  <g opacity="0.85">
+    <path d="M290 780C390 680 560 620 780 620C973 620 1090 670 1205 780V900H290V780Z" fill="#081722" fill-opacity="0.54"/>
+    <path d="M523 730C620 672 720 642 860 642C946 642 1009 655 1082 690L1049 840H533L523 730Z" fill="#DDF6FF" fill-opacity="0.08"/>
+  </g>
+
+  <g opacity="0.9">
+    <rect x="470" y="240" width="360" height="240" rx="18" fill="url(#glass)" stroke="#D8F5FF" stroke-opacity="0.28"/>
+    <path d="M510 398H812" stroke="#D2F3FF" stroke-opacity="0.27" stroke-width="6"/>
+    <path d="M525 324H755" stroke="#D2F3FF" stroke-opacity="0.2" stroke-width="10"/>
+    <circle cx="647" cy="348" r="28" fill="#E4F9FF" fill-opacity="0.26"/>
+    <circle cx="692" cy="348" r="28" fill="#9BE7FF" fill-opacity="0.26"/>
+    <circle cx="590" cy="348" r="28" fill="#C3F0FF" fill-opacity="0.22"/>
+  </g>
+
+  <g opacity="0.95">
+    <rect x="1110" y="250" width="210" height="130" rx="16" fill="#D9F5FF" fill-opacity="0.08" stroke="#C5F6FF" stroke-opacity="0.2"/>
+    <path d="M1145 355H1265" stroke="#8CE4FF" stroke-opacity="0.5" stroke-width="8" stroke-linecap="round"/>
+    <path d="M1145 330H1278" stroke="#B0EDFF" stroke-opacity="0.4" stroke-width="6" stroke-linecap="round"/>
+    <path d="M1200 290V353" stroke="#B5EFFB" stroke-opacity="0.35" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <g opacity="0.8">
+    <path d="M260 560C320 505 360 485 420 485C490 485 538 524 580 570" stroke="#8AEEFF" stroke-opacity="0.4" stroke-width="4" stroke-linecap="round"/>
+    <path d="M950 520C1010 470 1055 448 1125 448C1195 448 1238 490 1288 542" stroke="#A78BFA" stroke-opacity="0.4" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="420" cy="485" r="8" fill="#67E8F9" fill-opacity="0.8"/>
+    <circle cx="1125" cy="448" r="8" fill="#A78BFA" fill-opacity="0.8"/>
+  </g>
+</svg>

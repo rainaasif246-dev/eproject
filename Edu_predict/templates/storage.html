@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>EduPredict — Data Storage</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script></head>
+<body>
+{% set active_page = 'storage' %}
+{% include '_sidebar.html' %}
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div><div class="topbar-title">HDFS Data Storage</div><div class="topbar-sub">Hadoop Distributed File System — scalable fault-tolerant storage</div></div>
+        </div>
+        <div class="topbar-right"><div class="status-dot">Cluster Healthy</div></div>
+    </div>
+    <div class="page-content">
+        <div class="stats-grid">
+            <div class="stat-card purple"><div class="stat-icon purple">🗄️</div><div class="stat-value" style="color:#c084fc;">{{ total_used }}</div><div class="stat-label">Real Data Stored</div></div>
+            <div class="stat-card green"><div class="stat-icon green">✅</div><div class="stat-value" style="color:#22c55e;">99.9%</div><div class="stat-label">Cluster Uptime</div></div>
+            <div class="stat-card cyan"><div class="stat-icon cyan">🔁</div><div class="stat-value" style="color:#22d3ee;">3x</div><div class="stat-label">Replication Factor</div></div>
+            <div class="stat-card pink"><div class="stat-icon pink">💾</div><div class="stat-value" style="color:#ec4899;">{{ files_found }}</div><div class="stat-label">Datasets Loaded</div></div>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Storage by Dataset</div>
+                <div class="card-sub">Distribution of storage across data categories</div>
+                <canvas id="storageChart" height="220"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-title">HDFS Node Status</div>
+                <div class="card-sub">Health of all DataNodes and NameNode</div>
+                <table class="data-table">
+                    <thead><tr><th>Node</th><th>Status</th><th>Used</th><th>Free</th></tr></thead>
+                    <tbody>
+                        <tr><td>NameNode</td><td><span class="badge badge-success">Active</span></td><td>12 GB</td><td>488 GB</td></tr>
+                        <tr><td>DataNode-01</td><td><span class="badge badge-success">Active</span></td><td>820 GB</td><td>180 GB</td></tr>
+                        <tr><td>DataNode-02</td><td><span class="badge badge-success">Active</span></td><td>760 GB</td><td>240 GB</td></tr>
+                        <tr><td>DataNode-03</td><td><span class="badge badge-success">Active</span></td><td>820 GB</td><td>180 GB</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">HDFS Directory Structure</div>
+            <div class="card-sub">Real datasets loaded from <code style="color:#22d3ee;background:rgba(34,211,238,0.1);padding:2px 7px;border-radius:5px;">data/ingested/</code> — HDFS simulation</div>
+            <table class="data-table">
+                <thead><tr><th>HDFS Path</th><th>Dataset</th><th>Records</th><th>File Size</th><th>Last Updated</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for f in hdfs_files %}
+                    <tr>
+                        <td style="color:#c084fc;font-family:monospace;">{{ f.hdfs_path }}</td>
+                        <td>{{ f.label }}</td>
+                        <td>{{ f.records }}</td>
+                        <td>{{ f.size }}</td>
+                        <td>{{ f.updated }}</td>
+                        <td>
+                            {% if f.status == 'Available' %}
+                            <span class="badge badge-success">Available</span>
+                            {% else %}
+                            <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td style="color:#c084fc;font-family:monospace;">/edupredict/models/</td>
+                        <td>Trained ML Models</td>
+                        <td>—</td>
+                        <td>~26 MB</td>
+                        <td>2025-09-07</td>
+                        <td><span class="badge badge-success">Available</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- HIVE DATASET SECTION -->
+        {% if hive_dataset %}
+        <div class="card" style="border:1px solid rgba(34,211,238,0.3);background:rgba(34,211,238,0.04);">
+            <div class="card-title" style="display:flex;align-items:center;gap:10px;">
+                🐝 Apache Hive Dataset
+                <span style="font-size:11px;background:rgba(34,211,238,0.15);color:#22d3ee;padding:3px 10px;border-radius:20px;font-weight:600;">REAL DATA</span>
+            </div>
+            <div class="card-sub">Student Performance Factors — Kaggle Hive-compatible dataset ingested into warehouse</div>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Hive Path</th><th>Dataset</th><th>Records</th><th>Columns</th><th>File Size</th><th>Last Updated</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color:#22d3ee;font-family:monospace;">{{ hive_dataset.hdfs_path }}</td>
+                        <td><strong>{{ hive_dataset.label }}</strong></td>
+                        <td><strong style="color:#22c55e;">{{ hive_dataset.records }}</strong></td>
+                        <td>{{ hive_dataset.columns }}</td>
+                        <td>{{ hive_dataset.size }}</td>
+                        <td>{{ hive_dataset.updated }}</td>
+                        <td>
+                            {% if hive_dataset.status == 'Available' %}
+                            <span class="badge badge-success">Available</span>
+                            {% else %}
+                            <span class="badge badge-danger">Missing</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top:1rem;display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;">
+                <div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:10px;padding:.8rem;text-align:center;">
+                    <div style="font-size:1.2rem;font-weight:800;color:#22d3ee;">6,607</div>
+                    <div style="font-size:.72rem;color:#7c6fa0;margin-top:2px;">Total Records</div>
+                </div>
+                <div style="background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:.8rem;text-align:center;">
+                    <div style="font-size:1.2rem;font-weight:800;color:#c084fc;">20</div>
+                    <div style="font-size:.72rem;color:#7c6fa0;margin-top:2px;">Feature Columns</div>
+                </div>
+                <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:.8rem;text-align:center;">
+                    <div style="font-size:1.2rem;font-weight:800;color:#22c55e;">HiveQL</div>
+                    <div style="font-size:.72rem;color:#7c6fa0;margin-top:2px;">Query Engine</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:.8rem;text-align:center;">
+                    <div style="font-size:1.2rem;font-weight:800;color:#fbbf24;">ORC</div>
+                    <div style="font-size:.72rem;color:#7c6fa0;margin-top:2px;">Storage Format</div>
+                </div>
+            </div>
+            <div style="margin-top:.8rem;padding:.8rem 1rem;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15);border-radius:8px;font-size:.8rem;color:#86efac;">
+                🐝 <strong>HiveQL Query:</strong>
+                <code style="color:#22d3ee;margin-left:8px;">SELECT AVG(Exam_Score), COUNT(*) FROM hive.student_performance WHERE Attendance &gt; 75;</code>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- BACKUP & RELIABILITY -->
+        <div class="card">
+            <div class="card-title">🛡️ Backup &amp; Reliability Status</div>
+            <div class="card-sub">Automated backup schedule, replication health &amp; disaster recovery</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.4rem;">
+                <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#22c55e;">99.9%</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">System Uptime</div>
+                </div>
+                <div style="background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#c084fc;">3x</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">HDFS Replication Factor</div>
+                </div>
+                <div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#22d3ee;">Daily</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Backup Frequency</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#fbbf24;">4 hrs</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Recovery Time Objective</div>
+                </div>
+            </div>
+            <table class="data-table" style="margin-bottom:1.2rem;">
+                <thead>
+                    <tr><th>Backup Job</th><th>Schedule</th><th>Last Run</th><th>Size</th><th>Destination</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Full HDFS Snapshot</td><td>Daily 02:00 AM</td><td>2025-01-16 02:00</td><td>2.4 TB</td><td style="font-family:monospace;color:#c084fc;">/backup/hdfs/full/</td><td><span class="badge badge-success">Completed</span></td></tr>
+                    <tr><td>Academic Records</td><td>Every 6 hrs</td><td>2025-01-16 06:00</td><td>48 MB</td><td style="font-family:monospace;color:#c084fc;">/backup/academic/</td><td><span class="badge badge-success">Completed</span></td></tr>
+                    <tr><td>ML Models</td><td>After each retrain</td><td>2025-01-15 18:30</td><td>14 MB</td><td style="font-family:monospace;color:#c084fc;">/backup/models/</td><td><span class="badge badge-success">Completed</span></td></tr>
+                    <tr><td>User &amp; Auth Data</td><td>Daily 03:00 AM</td><td>2025-01-16 03:00</td><td>2 MB</td><td style="font-family:monospace;color:#c084fc;">/backup/users/</td><td><span class="badge badge-success">Completed</span></td></tr>
+                    <tr><td>Incremental Logs</td><td>Hourly</td><td>2025-01-16 09:00</td><td>120 MB</td><td style="font-family:monospace;color:#c084fc;">/backup/logs/</td><td><span class="badge badge-warning">Running</span></td></tr>
+                </tbody>
+            </table>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div style="padding:.9rem 1rem;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.15);border-radius:10px;font-size:.82rem;color:#86efac;">
+                    ✅ <strong>Fault Tolerance:</strong> HDFS 3× replication ensures data survives up to 2 simultaneous DataNode failures without data loss.
+                </div>
+                <div style="padding:.9rem 1rem;background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:10px;font-size:.82rem;color:#c084fc;">
+                    🔄 <strong>Disaster Recovery:</strong> Full system restore within 4 hours. Backup retention: 30 days rolling.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    new Chart(document.getElementById('storageChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['LMS Logs','Attendance','Academic','Demographics','ML Models'],
+            datasets: [{ data: [380,210,48,22,14], backgroundColor: ['#a855f7','#22d3ee','#22c55e','#ec4899','#eab308'], borderColor: '#07071a', borderWidth: 4, hoverOffset: 6 }]
+        },
+        options: { cutout: '60%', plugins: { legend: { labels: { color: '#c4b8e8', padding: 14, font: { size: 12 } } } } }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPredict — Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% set active_page = 'predict' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">ML Predictor Engine</div>
+                <div class="topbar-sub">Student Performance Dataset · Exam Score · At-Risk · Course Demand</div>
+            </div>
+        </div>
+        <div class="topbar-right"><div class="status-dot">Models Online</div></div>
+    </div>
+
+    <div class="page-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}{% for c, m in messages %}<div class="alert alert-{{ c }}">{{ m }}</div>{% endfor %}{% endif %}
+        {% endwith %}
+
+        <div class="tabs">
+            <button onclick="showTab('exam')"    id="tab-exam"    class="tab-btn tab-active">📝 Exam Score</button>
+            <button onclick="showTab('dropout')" id="tab-dropout" class="tab-btn">⚠️ At-Risk Detection</button>
+            <button onclick="showTab('course')"  id="tab-course"  class="tab-btn">📚 Course Demand</button>
+        </div>
+
+        <!-- ══════════════════════════════════
+             TAB 1: EXAM SCORE PREDICTION
+        ══════════════════════════════════ -->
+        <div id="panel-exam">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Student Exam Score Predictor</div>
+                    <div class="card-sub">Random Forest model trained on Student Performance Dataset (21 features)</div>
+                    <form action="/predict" method="POST">
+                        <input type="hidden" name="pred_type" value="exam">
+
+                        <div style="font-size:11px; font-weight:700; color:#a855f7; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">📊 Academic Factors</div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Hours Studied (per week)</label>
+                                <input type="number" step="0.1" name="hours_studied" required placeholder="e.g. 20">
+                            </div>
+                            <div class="form-group">
+                                <label>Attendance (%)</label>
+                                <input type="number" step="0.1" name="attendance" required placeholder="e.g. 85">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Previous Scores (%)</label>
+                                <input type="number" step="0.1" name="previous_scores" required placeholder="e.g. 72">
+                            </div>
+                            <div class="form-group">
+                                <label>Tutoring Sessions (monthly)</label>
+                                <input type="number" name="tutoring_sessions" placeholder="e.g. 2" value="1">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Sleep Hours (per night)</label>
+                                <input type="number" step="0.1" name="sleep_hours" placeholder="e.g. 7" value="7">
+                            </div>
+                            <div class="form-group">
+                                <label>Physical Activity (hrs/week)</label>
+                                <input type="number" step="0.1" name="physical_activity" placeholder="e.g. 3" value="3">
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+                        <div style="font-size:11px; font-weight:700; color:#a855f7; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">👤 Student Profile</div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select name="gender">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parental Involvement</label>
+                                <select name="parental_involvement">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Access to Resources</label>
+                                <select name="access_to_resources">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Motivation Level</label>
+                                <select name="motivation_level">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Family Income</label>
+                                <select name="family_income">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Teacher Quality</label>
+                                <select name="teacher_quality">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+                        <div style="font-size:11px; font-weight:700; color:#a855f7; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">🏫 School & Environment</div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>School Type</label>
+                                <select name="school_type">
+                                    <option value="Public">Public</option>
+                                    <option value="Private">Private</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Distance from Home</label>
+                                <select name="distance_from_home">
+                                    <option value="Near">Near</option>
+                                    <option value="Moderate" selected>Moderate</option>
+                                    <option value="Far">Far</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Peer Influence</label>
+                                <select name="peer_influence">
+                                    <option value="Negative">Negative</option>
+                                    <option value="Neutral" selected>Neutral</option>
+                                    <option value="Positive">Positive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parental Education Level</label>
+                                <select name="parental_education">
+                                    <option value="High School">High School</option>
+                                    <option value="College" selected>College</option>
+                                    <option value="Postgraduate">Postgraduate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Extracurricular Activities</label>
+                                <select name="extracurricular">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Internet Access</label>
+                                <select name="internet_access">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Learning Disabilities</label>
+                            <select name="learning_disabilities">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+
+                        <button type="submit">Run Prediction →</button>
+                    </form>
+                </div>
+
+                <!-- RESULT -->
+                <div class="card" style="display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:300px;">
+                    {% if prediction is not none and pred_type == 'exam' %}
+                    <div class="result-box" style="width:100%;">
+                        <div style="font-size:13px; color:#7c6fa0; margin-bottom:8px;">Predicted Exam Score</div>
+                        <div class="result-score">{{ prediction }}%</div>
+                        <div class="result-label">{{ model_used }}</div>
+                        <div class="alert {% if prediction < 50 %}alert-danger{% elif prediction < 75 %}alert-warning{% else %}alert-success{% endif %}" style="text-align:left; margin-top:16px;">
+                            {{ alert_level }}
+                        </div>
+                        <!-- Score bar -->
+                        <div style="margin-top:16px;">
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#7c6fa0; margin-bottom:6px;">
+                                <span>0%</span><span>Score</span><span>100%</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.06); border-radius:8px; height:10px; overflow:hidden;">
+                                <div id="score-bar"
+                                    data-pct="{{ prediction }}"
+                                    data-color="{% if prediction < 50 %}linear-gradient(90deg,#ef4444,#f97316){% elif prediction < 75 %}linear-gradient(90deg,#eab308,#f97316){% else %}linear-gradient(90deg,#22c55e,#22d3ee){% endif %}"
+                                    style="height:100%; border-radius:8px; transition:width 0.5s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="text-align:center; color:#7c6fa0;">
+                        <div style="font-size:48px; margin-bottom:12px;">🤖</div>
+                        <div style="font-size:15px; font-weight:600; color:#e9d5ff;">Enter student data</div>
+                        <div style="font-size:13px; margin-top:6px;">Prediction result will appear here</div>
+                        <div style="margin-top:20px; padding:14px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:10px; text-align:left;">
+                            <div style="font-size:11px; font-weight:700; color:#a855f7; margin-bottom:8px;">MODEL INFO</div>
+                            <div style="font-size:12px; color:#7c6fa0; line-height:1.8;">
+                                🔹 Model: Random Forest Regressor<br>
+                                🔹 Dataset: Student Performance<br>
+                                🔹 Features: 21 input variables<br>
+                                🔹 Scaler: StandardScaler applied
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════
+             TAB 2: AT-RISK DETECTION
+        ══════════════════════════════════ -->
+        <div id="panel-dropout" style="display:none;">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">At-Risk Student Detector</div>
+                    <div class="card-sub">Random Forest Classifier — predicts if student is at risk of dropout/failure</div>
+                    <form action="/predict" method="POST">
+                        <input type="hidden" name="pred_type" value="dropout">
+
+                        <div style="font-size:11px; font-weight:700; color:#a855f7; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">📊 Academic Factors</div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Hours Studied (per week)</label>
+                                <input type="number" step="0.1" name="hours_studied" required placeholder="e.g. 5">
+                            </div>
+                            <div class="form-group">
+                                <label>Attendance (%)</label>
+                                <input type="number" step="0.1" name="attendance" required placeholder="e.g. 55">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Previous Scores (%)</label>
+                                <input type="number" step="0.1" name="previous_scores" required placeholder="e.g. 40">
+                            </div>
+                            <div class="form-group">
+                                <label>Tutoring Sessions (monthly)</label>
+                                <input type="number" name="tutoring_sessions" placeholder="e.g. 0" value="0">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Sleep Hours (per night)</label>
+                                <input type="number" step="0.1" name="sleep_hours" placeholder="e.g. 5" value="6">
+                            </div>
+                            <div class="form-group">
+                                <label>Physical Activity (hrs/week)</label>
+                                <input type="number" step="0.1" name="physical_activity" placeholder="e.g. 1" value="2">
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+                        <div style="font-size:11px; font-weight:700; color:#a855f7; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">👤 Student Profile</div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select name="gender"><option value="Male">Male</option><option value="Female">Female</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parental Involvement</label>
+                                <select name="parental_involvement">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Access to Resources</label>
+                                <select name="access_to_resources">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Motivation Level</label>
+                                <select name="motivation_level">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Family Income</label>
+                                <select name="family_income">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Teacher Quality</label>
+                                <select name="teacher_quality">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>School Type</label>
+                                <select name="school_type"><option value="Public">Public</option><option value="Private">Private</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Distance from Home</label>
+                                <select name="distance_from_home">
+                                    <option value="Near">Near</option>
+                                    <option value="Moderate" selected>Moderate</option>
+                                    <option value="Far">Far</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Peer Influence</label>
+                                <select name="peer_influence">
+                                    <option value="Negative">Negative</option>
+                                    <option value="Neutral" selected>Neutral</option>
+                                    <option value="Positive">Positive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parental Education Level</label>
+                                <select name="parental_education">
+                                    <option value="High School">High School</option>
+                                    <option value="College" selected>College</option>
+                                    <option value="Postgraduate">Postgraduate</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Extracurricular Activities</label>
+                                <select name="extracurricular"><option value="Yes">Yes</option><option value="No">No</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Internet Access</label>
+                                <select name="internet_access"><option value="Yes">Yes</option><option value="No">No</option></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Learning Disabilities</label>
+                            <select name="learning_disabilities"><option value="No">No</option><option value="Yes">Yes</option></select>
+                        </div>
+                        <button type="submit">Analyze Risk →</button>
+                    </form>
+                </div>
+
+                <!-- AT-RISK RESULT -->
+                <div class="card" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    {% if at_risk_result is not none and pred_type == 'dropout' %}
+                    <div class="result-box" style="width:100%;">
+                        <div style="font-size:13px; color:#7c6fa0; margin-bottom:8px;">At-Risk Classification</div>
+                        <div class="result-score"
+                            id="risk-label"
+                            data-risk="{{ at_risk_result }}"
+                            style="-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+                            {% if at_risk_result == 1 %}AT RISK{% else %}STABLE{% endif %}
+                        </div>
+                        <div class="result-label">Confidence: {{ at_risk_proba }}% · Random Forest Classifier</div>
+                        <div class="alert {% if at_risk_result == 1 %}alert-danger{% else %}alert-success{% endif %}" style="text-align:left; margin-top:16px;">
+                            {{ at_risk_alert }}
+                        </div>
+                        <div style="margin-top:16px; padding:12px; background:rgba(255,255,255,0.03); border-radius:10px;">
+                            <div style="font-size:11px; color:#7c6fa0; margin-bottom:6px;">Confidence Level</div>
+                            <div style="background:rgba(255,255,255,0.06); border-radius:8px; height:10px; overflow:hidden;">
+                                <div id="risk-bar"
+                                    data-pct="{{ at_risk_proba }}"
+                                    data-color="{% if at_risk_result == 1 %}linear-gradient(90deg,#ef4444,#f97316){% else %}linear-gradient(90deg,#22c55e,#22d3ee){% endif %}"
+                                    style="height:100%; border-radius:8px;"></div>
+                            </div>
+                            <div style="font-size:12px; color:#7c6fa0; margin-top:6px;">{{ at_risk_proba }}% confidence</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="text-align:center; color:#7c6fa0;">
+                        <div style="font-size:48px; margin-bottom:12px;">⚠️</div>
+                        <div style="font-size:15px; font-weight:600; color:#e9d5ff;">Enter student data</div>
+                        <div style="font-size:13px; margin-top:6px;">At-risk classification will appear here</div>
+                        <div style="margin-top:20px; padding:14px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:10px; text-align:left;">
+                            <div style="font-size:11px; font-weight:700; color:#a855f7; margin-bottom:8px;">MODEL INFO</div>
+                            <div style="font-size:12px; color:#7c6fa0; line-height:1.8;">
+                                🔹 Model: Random Forest Classifier<br>
+                                🔹 Output: At-Risk (1) / Stable (0)<br>
+                                🔹 Features: 21 input variables<br>
+                                🔹 Scaler: StandardScaler applied
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════
+             TAB 3: COURSE DEMAND
+        ══════════════════════════════════ -->
+        <div id="panel-course" style="display:none;">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Course Demand Forecast</div>
+                    <div class="card-sub">Predict future enrollment demand by course category</div>
+                    <form action="/predict" method="POST">
+                        <input type="hidden" name="pred_type" value="course">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Course Category</label>
+                                <select name="course_category">
+                                    <option value="cs">BS Computer Science</option>
+                                    <option value="se">BS Software Engineering</option>
+                                    <option value="ai">BS Artificial Intelligence</option>
+                                    <option value="ds">BS Data Science</option>
+                                    <option value="sec">BS Cyber Security</option>
+                                    <option value="it">BS Information Technology</option>
+                                    <option value="ee">BS Electrical Engineering</option>
+                                    <option value="me">BS Mechanical Engineering</option>
+                                    <option value="ce">BS Civil Engineering</option>
+                                    <option value="bba">BBA Business Administration</option>
+                                    <option value="af">BS Accounting & Finance</option>
+                                    <option value="econ">BS Economics</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Current Enrollment</label>
+                                <input type="number" name="current_enrollment" required placeholder="e.g. 120">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Avg Score in Subject (%)</label>
+                                <input type="number" step="0.1" name="avg_score" required placeholder="e.g. 68">
+                            </div>
+                            <div class="form-group">
+                                <label>Forecast Period (months)</label>
+                                <input type="number" name="forecast_months" value="6" min="1" max="24">
+                            </div>
+                        </div>
+                        <button type="submit">Forecast Demand →</button>
+                    </form>
+                </div>
+                <div class="card" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    {% if pred_type == 'course' and course_forecast is not none %}
+                    <div class="result-box" style="width:100%;">
+                        <div class="result-score">{{ course_forecast }}</div>
+                        <div class="result-label">Forecasted Students · {{ course_category_name }}</div>
+                        <p style="color:#7c6fa0; font-size:13px; margin:10px 0 4px;">Trend: <strong style="color:#22c55e;">{{ course_trend }}</strong></p>
+                        <div class="alert alert-success" style="text-align:left; margin-top:12px;">{{ course_recommendation }}</div>
+                    </div>
+                    {% else %}
+                    <div style="text-align:center; color:#7c6fa0;">
+                        <div style="font-size:48px; margin-bottom:12px;">📚</div>
+                        <div style="font-size:15px; font-weight:600; color:#e9d5ff;">Select course & parameters</div>
+                        <div style="font-size:13px; margin-top:6px;">Forecast will appear here</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function showTab(name) {
+        ['exam','dropout','course'].forEach(t => {
+            document.getElementById('panel-' + t).style.display = (t === name) ? 'block' : 'none';
+            document.getElementById('tab-' + t).classList.toggle('tab-active', t === name);
+        });
+    }
+    showTab("{{ pred_type or 'exam' }}");
+    ['score-bar','risk-bar'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.style.width = el.getAttribute('data-pct') + '%';
+            el.style.background = el.getAttribute('data-color');
+        }
+    });
+    var rl = document.getElementById('risk-label');
+    if (rl) {
+        rl.style.background = rl.getAttribute('data-risk') === '1'
+            ? 'linear-gradient(90deg,#ef4444,#f97316)'
+            : 'linear-gradient(90deg,#22c55e,#22d3ee)';
+    }
+</script>
+</body>
+</html>

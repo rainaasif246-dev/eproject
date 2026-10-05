@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students — EduPredict</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .students-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
+        .stu-stat { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 1.4rem 1.6rem; display: flex; align-items: center; gap: 1rem; }
+        .stu-stat-icon { font-size: 2rem; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .stu-stat-icon.purple { background: rgba(168,85,247,.18); }
+        .stu-stat-icon.green  { background: rgba(34,197,94,.18); }
+        .stu-stat-icon.red    { background: rgba(239,68,68,.18); }
+        .stu-stat-icon.blue   { background: rgba(34,211,238,.18); }
+        .stu-stat-val { font-size: 1.7rem; font-weight: 700; color: #f1f0ff; line-height: 1; }
+        .stu-stat-lbl { font-size: .78rem; color: #6b5f8a; margin-top: .2rem; }
+
+        .controls-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; min-width: 200px; position: relative; }
+        .search-box input { width: 100%; padding: .65rem 1rem .65rem 2.6rem; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; color: #f1f0ff; font-size: .9rem; outline: none; transition: border-color .2s; font-family: inherit; }
+        .search-box input:focus { border-color: #a855f7; }
+        .search-box .s-icon { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); font-size: .95rem; pointer-events: none; }
+        .filter-select { padding: .65rem 1rem; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; color: #f1f0ff; font-size: .88rem; outline: none; cursor: pointer; font-family: inherit; }
+        .filter-select:focus { border-color: #a855f7; }
+        .filter-select option { background: #0c0820; }
+
+        .table-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 18px; overflow: hidden; }
+        .table-header { padding: 1.2rem 1.6rem; border-bottom: 1px solid rgba(255,255,255,.07); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
+        .table-header h3 { font-size: 1rem; font-weight: 600; color: #f1f0ff; margin: 0; }
+        .table-count { font-size: .82rem; color: #6b5f8a; }
+        .stu-table { width: 100%; border-collapse: collapse; }
+        .stu-table th { padding: .85rem 1.2rem; text-align: left; font-size: .78rem; font-weight: 600; color: #6b5f8a; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid rgba(255,255,255,.07); background: rgba(168,85,247,.05); }
+        .stu-table td { padding: .9rem 1.2rem; font-size: .88rem; color: #c4b8e8; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+        .stu-table tr:last-child td { border-bottom: none; }
+        .stu-table tr:hover td { background: rgba(168,85,247,.06); }
+
+        .stu-name { font-weight: 600; color: #f1f0ff; display: flex; align-items: center; gap: .6rem; }
+        .stu-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#7c3aed,#a855f7); display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+
+        .score-bar-wrap { display: flex; align-items: center; gap: .6rem; }
+        .score-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); width: 60px; overflow: hidden; flex-shrink: 0; }
+        .score-fill { height: 100%; border-radius: 3px; }
+        .score-fill.high  { background: linear-gradient(90deg,#22c55e,#34d399); }
+        .score-fill.mid   { background: linear-gradient(90deg,#eab308,#fbbf24); }
+        .score-fill.low   { background: linear-gradient(90deg,#ef4444,#f87171); }
+
+        .risk-badge { padding: .25rem .7rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+        .risk-badge.High   { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+        .risk-badge.Medium { background: rgba(234,179,8,.15);  color: #fde047; border: 1px solid rgba(234,179,8,.3); }
+        .risk-badge.Low    { background: rgba(34,197,94,.15);  color: #86efac; border: 1px solid rgba(34,197,94,.3); }
+
+        .s-status { display: inline-flex; align-items: center; gap: .4rem; font-size: .82rem; }
+        .s-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .s-status.Active::before   { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .s-status.At-Risk::before  { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+        .s-status.Inactive::before { background: #6b7280; }
+
+        .action-btn { background: rgba(168,85,247,.15); border: 1px solid rgba(168,85,247,.3); color: #c084fc; padding: .3rem .75rem; border-radius: 8px; font-size: .78rem; cursor: pointer; transition: all .2s; text-decoration: none; }
+        .action-btn:hover { background: rgba(168,85,247,.3); }
+
+        .pagination { display: flex; justify-content: center; align-items: center; gap: .5rem; padding: 1.2rem; border-top: 1px solid rgba(255,255,255,.07); }
+        .page-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); color: #c4b8e8; font-size: .85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+        .page-btn:hover { background: #a855f7; border-color: #a855f7; color: #fff; }
+        .page-info { font-size: .82rem; color: #6b5f8a; padding: 0 .5rem; }
+
+        @media(max-width:900px){ .students-grid{grid-template-columns:1fr 1fr;} }
+        @media(max-width:768px){ .stu-table th:nth-child(3),.stu-table td:nth-child(3),.stu-table th:nth-child(4),.stu-table td:nth-child(4){ display:none; } .controls-bar{gap:.6rem;} .filter-select{font-size:.8rem;padding:.5rem .7rem;} }
+        @media(max-width:480px){ .students-grid{grid-template-columns:1fr 1fr;} .stu-table th:nth-child(6),.stu-table td:nth-child(6){ display:none; } }
+    </style>
+</head>
+<body>
+{% set active_page = 'students' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div>
+                <div class="topbar-title">Student Management</div>
+                <div class="topbar-sub">Monitor, track, and manage all enrolled students</div>
+            </div>
+        </div>
+        <div class="topbar-right"><div class="status-dot">{{ session['role'] }}</div></div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for cat, msg in messages %}
+    <div class="alert alert-{{ cat }}">{{ msg }}</div>
+    {% endfor %}{% endif %}{% endwith %}
+
+    <!-- Stats -->
+    <div class="students-grid">
+        <div class="stu-stat">
+            <div class="stu-stat-icon purple">👥</div>
+            <div>
+                <div class="stu-stat-val">{{ stats.total }}</div>
+                <div class="stu-stat-lbl">Total Students</div>
+            </div>
+        </div>
+        <div class="stu-stat">
+            <div class="stu-stat-icon green">✅</div>
+            <div>
+                <div class="stu-stat-val">{{ stats.active }}</div>
+                <div class="stu-stat-lbl">Active Students</div>
+            </div>
+        </div>
+        <div class="stu-stat">
+            <div class="stu-stat-icon red">⚠️</div>
+            <div>
+                <div class="stu-stat-val">{{ stats.at_risk }}</div>
+                <div class="stu-stat-lbl">High Risk</div>
+            </div>
+        </div>
+        <div class="stu-stat">
+            <div class="stu-stat-icon blue">📊</div>
+            <div>
+                <div class="stu-stat-val">{{ stats.avg_score }}%</div>
+                <div class="stu-stat-lbl">Avg Score</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-bar">
+        <div class="search-box">
+            <span class="s-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search by name, ID, or course..." oninput="filterTable()">
+        </div>
+        <select class="filter-select" id="riskFilter" onchange="filterTable()">
+            <option value="">All Risk Levels</option>
+            <option value="High">High Risk</option>
+            <option value="Medium">Medium Risk</option>
+            <option value="Low">Low Risk</option>
+        </select>
+        <select class="filter-select" id="statusFilter" onchange="filterTable()">
+            <option value="">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="At-Risk">At-Risk</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <select class="filter-select" id="courseFilter" onchange="filterTable()">
+            <option value="">All Courses</option>
+            <option>BS Computer Science</option>
+            <option>BS Software Engineering</option>
+            <option>BS Artificial Intelligence</option>
+            <option>BS Data Science</option>
+            <option>BS Cyber Security</option>
+            <option>BS Information Technology</option>
+            <option>BS Electrical Engineering</option>
+            <option>BS Mechanical Engineering</option>
+            <option>BS Civil Engineering</option>
+            <option>BBA Business Administration</option>
+            <option>BS Accounting & Finance</option>
+            <option>BS Economics</option>
+        </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>📋 Student Records</h3>
+            <span class="table-count" id="tableCount">Showing {{ students|length }} students</span>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="stu-table" id="stuTable">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>ID</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Score</th>
+                        <th>Attendance</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="stuBody">
+                {% for s in students %}
+                <tr data-name="{{ s.name|lower }}" data-id="{{ s.id|lower }}" data-course="{{ s.course }}" data-risk="{{ s.risk }}" data-status="{{ s.status }}">
+                    <td>
+                        <div class="stu-name">
+                            <div class="stu-avatar">{{ s.name[0] }}</div>
+                            {{ s.name }}
+                        </div>
+                    </td>
+                    <td style="color:var(--text-muted);font-size:.82rem;">{{ s.id }}</td>
+                    <td>{{ s.course }}</td>
+                    <td style="text-align:center;">Sem {{ s.semester }}</td>
+                    <td>
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill {% if s.score >= 70 %}high{% elif s.score >= 50 %}mid{% else %}low{% endif %}" data-pct="{{ s.score }}"></div>
+                            </div>
+                            <span>{{ s.score }}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill {% if s.attendance >= 75 %}high{% elif s.attendance >= 60 %}mid{% else %}low{% endif %}" data-pct="{{ s.attendance }}"></div>
+                            </div>
+                            <span>{{ s.attendance }}%</span>
+                        </div>
+                    </td>
+                    <td><span class="risk-badge {{ s.risk }}">{{ s.risk }}</span></td>
+                    <td><span class="s-status {{ s.status }}">{{ s.status }}</span></td>
+                    <td><a href="/predict" class="action-btn">Predict</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination" id="paginationBar">
+            <button class="page-btn" onclick="changePage(-1)">‹</button>
+            <span class="page-info" id="pageInfo">Page 1</span>
+            <button class="page-btn" onclick="changePage(1)">›</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const ROWS_PER_PAGE = 15;
+let currentPage = 1;
+let visibleRows = [];
+
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const risk = document.getElementById('riskFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    const course = document.getElementById('courseFilter').value;
+    const rows = document.querySelectorAll('#stuBody tr');
+    visibleRows = [];
+    rows.forEach(r => {
+        const matchQ = !q || r.dataset.name.includes(q) || r.dataset.id.includes(q) || r.dataset.course.toLowerCase().includes(q);
+        const matchR = !risk || r.dataset.risk === risk;
+        const matchS = !status || r.dataset.status === status;
+        const matchC = !course || r.dataset.course === course;
+        if (matchQ && matchR && matchS && matchC) visibleRows.push(r);
+    });
+    currentPage = 1;
+    renderPage();
+}
+
+function renderPage() {
+    const rows = document.querySelectorAll('#stuBody tr');
+    rows.forEach(r => r.style.display = 'none');
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    const end = start + ROWS_PER_PAGE;
+    visibleRows.slice(start, end).forEach(r => r.style.display = '');
+    document.getElementById('tableCount').textContent = `Showing ${visibleRows.length} students`;
+    document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${Math.max(1, Math.ceil(visibleRows.length / ROWS_PER_PAGE))}`;
+}
+
+function changePage(dir) {
+    const maxPage = Math.max(1, Math.ceil(visibleRows.length / ROWS_PER_PAGE));
+    currentPage = Math.min(maxPage, Math.max(1, currentPage + dir));
+    renderPage();
+}
+
+// Init
+const allRows = Array.from(document.querySelectorAll('#stuBody tr'));
+visibleRows = allRows;
+renderPage();
+document.querySelectorAll('.score-fill[data-pct]').forEach(function(el) {
+    el.style.width = el.getAttribute('data-pct') + '%';
+});
+</script>
+</body>
+</html>

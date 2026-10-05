@@ -1,0 +1,88 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="DFD Level-1">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="2" value="DFD Level-1: EduPredict Sub-Processes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#0050ef;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="700" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- External Entities -->
+        <mxCell id="3" value="Users" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="430" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="Data Sources" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="430" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Processes (circles) -->
+        <mxCell id="5" value="P1&#xa;User Auth&#xa;&amp; RBAC" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="100" width="150" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="P2&#xa;Data&#xa;Ingestion" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="100" width="150" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="P3&#xa;ML Prediction&#xa;Engine" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="400" width="150" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="P4&#xa;Real-Time&#xa;Processing" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="400" width="150" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="P5&#xa;Alerts &amp;&#xa;Notifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="700" width="150" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="P6&#xa;Reports &amp;&#xa;Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="950" y="700" width="150" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Data Stores (open rectangles - double line style) -->
+        <mxCell id="11" value="DS1: HDFS Storage" style="shape=mxgraph.dfd.dataStore;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="570" y="110" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="DS2: ML Models (.pkl)" style="shape=mxgraph.dfd.dataStore;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="570" y="430" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="DS3: User Session Store" style="shape=mxgraph.dfd.dataStore;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="570" y="730" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows -->
+        <!-- Users → P1 -->
+        <mxCell id="14" value="Login Request" edge="1" source="3" target="5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P1 → DS3 -->
+        <mxCell id="15" value="Store Session" edge="1" source="5" target="13" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P1 → DS1 -->
+        <mxCell id="16" value="Auth OK" edge="1" source="5" target="11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- Data Sources → P2 -->
+        <mxCell id="17" value="Raw Data" edge="1" source="4" target="6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P2 → DS1 -->
+        <mxCell id="18" value="Store in HDFS" edge="1" source="6" target="11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- DS1 → P3 -->
+        <mxCell id="19" value="Load Data" edge="1" source="11" target="7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- DS2 → P3 -->
+        <mxCell id="20" value="Load Models" edge="1" source="12" target="7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- Users → P3 -->
+        <mxCell id="21" value="Prediction Input" edge="1" source="3" target="7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P3 → P5 -->
+        <mxCell id="22" value="Trigger Alert" edge="1" source="7" target="9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P2 → P4 -->
+        <mxCell id="23" value="Stream Feed" edge="1" source="6" target="8" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P4 → P5 -->
+        <mxCell id="24" value="Anomaly Event" edge="1" source="8" target="9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P4 → P6 -->
+        <mxCell id="25" value="Real-time Data" edge="1" source="8" target="10" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P3 → P6 -->
+        <mxCell id="26" value="Prediction Results" edge="1" source="7" target="10" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P5 → Users -->
+        <mxCell id="27" value="Alert Notification" edge="1" source="9" target="3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- P6 → Users -->
+        <mxCell id="28" value="Dashboard / Reports" edge="1" source="10" target="3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <!-- DS3 → P1 -->
+        <mxCell id="29" value="Verify Session" edge="1" source="13" target="5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

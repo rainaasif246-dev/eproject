@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduPredict — AI Education Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#080e1c;color:#FFFFFF;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(15,23,42,.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(99,86,241,.22)}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{width:36px;height:36px;background:linear-gradient(135deg,#A855F7,#EC4899,#14B8A6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 18px rgba(99,86,241,.45)}
+.nav-brand-text{display:flex;flex-direction:column}
+.nav-name{font-size:16px;font-weight:800;color:#FFFFFF;letter-spacing:-.3px}
+.nav-sub{font-size:10px;font-weight:600;color:#A855F7;letter-spacing:1.5px;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-links a{color:#8aa6aa;text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:8px;transition:all .2s}
+.nav-links a:hover{color:#FFFFFF;background:rgba(99,86,241,.1)}
+.nav-btn-outline,.nav-btn-fill{display:inline-flex;align-items:center;padding:8px 20px;border-radius:9px;text-decoration:none;font-size:13px;font-weight:700}
+.nav-btn-outline{border:1px solid rgba(34,211,238,.35);color:#67E8F9}
+.nav-btn-fill{background:linear-gradient(135deg,#22D3EE,#A78BFA);color:#06121F}
+.nav-links span{color:rgba(45,212,191,.35);font-size:11px}
+.nav-signin{display:flex;align-items:center;gap:8px;padding:8px 20px;background:linear-gradient(135deg,#A855F7,#EC4899,#14B8A6);border-radius:9px;color:#fff;text-decoration:none;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(99,86,241,.3);transition:all .2s}
+.nav-signin:hover{box-shadow:0 6px 24px rgba(20,184,166,.5);transform:translateY(-1px)}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;
+  background: linear-gradient(160deg, #06090f 0%, #080e1c 30%, #090f20 60%, #07080f 100%);}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none}
+.hero-video-wrap{
+  position:absolute;inset:0;display:block;overflow:hidden;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(135deg, rgba(4,9,20,0.62), rgba(7,24,39,0.56)),
+    url('/static/edu_hero_bg.svg') center/cover no-repeat,
+    radial-gradient(circle at 18% 22%, rgba(34,211,238,0.18), transparent 22%),
+    radial-gradient(circle at 80% 28%, rgba(168,85,247,0.16), transparent 22%),
+    radial-gradient(circle at 53% 76%, rgba(20,184,166,0.14), transparent 26%),
+    linear-gradient(135deg, #040914 0%, #071827 22%, #0b1b2f 50%, #040914 100%);
+  filter:saturate(1.1) contrast(1.06);
+}
+.hero-video-wrap video{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55;
+  filter:grayscale(.08) saturate(1.05) brightness(.78) contrast(1.15);
+  transform:scale(1.04);
+  display:block;
+}
+.hero-video-wrap.is-fallback video{display:none}
+.hero-video-wrap.is-fallback{
+  background:
+    linear-gradient(135deg, rgba(4,9,20,0.72), rgba(8,20,32,0.68)),
+    url('/static/edu_hero_bg.svg') center/cover no-repeat,
+    linear-gradient(135deg, #040914 0%, #071827 22%, #0b1b2f 50%, #040914 100%);
+}
+.hero-video-wrap::before{
+  content:"";
+  position:absolute;inset:-15% -8%;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(103,232,249,0.08) 35%, rgba(103,232,249,0.16) 48%, transparent 63%),
+    repeating-linear-gradient(90deg, rgba(148,163,184,0.06) 0, rgba(148,163,184,0.06) 1px, transparent 1px, transparent 72px),
+    repeating-linear-gradient(180deg, rgba(34,211,238,0.04) 0, rgba(34,211,238,0.04) 1px, transparent 1px, transparent 84px);
+  transform:scale(1.08) skewY(-3deg);
+  animation: heroFloat 18s ease-in-out infinite alternate;
+}
+.hero-video-wrap::after{
+  content:"";
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 30% 48%, rgba(255,255,255,0.09), transparent 16%),
+    radial-gradient(circle at 68% 52%, rgba(255,255,255,0.06), transparent 14%),
+    radial-gradient(circle at 50% 50%, transparent 45%, rgba(4,9,20,0.58) 100%);
+}
+@keyframes heroFloat{
+  0% { transform:translate3d(-2%, 0%, 0) scale(1.03) rotate(-0.5deg) }
+  100% { transform:translate3d(2%, 2%, 0) scale(1.09) rotate(0.5deg) }
+}
+.hero-video-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(90deg,rgba(4,9,20,.45),rgba(4,9,20,.05) 48%,rgba(4,9,20,.3)),
+    linear-gradient(180deg,rgba(7,12,23,.08),rgba(6,9,15,.62));
+}
+.hero-grid-overlay{position:absolute;inset:0;z-index:2;
+  background-image: linear-gradient(rgba(34,211,238,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
+  background-size: 72px 72px;
+  animation: gridMove 22s linear infinite;
+  pointer-events:none;
+}
+@keyframes gridMove{from{background-position:0 0}to{background-position:60px 60px}}
+.hero-vignette{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 55% at 20% 35%, rgba(34,211,238,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 85% 75%, rgba(99,86,241,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 35% at 65% 15%, rgba(168,85,247,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, transparent 60%, rgba(6,9,15,0.55) 100%);
+}
+.hero > :not(#heroCanvas):not(.hero-grid-overlay):not(.hero-vignette){position:relative;z-index:3}
+.hero-breadcrumb{display:inline-flex;align-items:center;gap:6px;padding:7px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(45,212,191,.2);border-radius:20px;font-size:12px;color:#8aa6aa;margin-bottom:40px;font-family:'Courier New',monospace;letter-spacing:.3px}
+.hero-breadcrumb span{color:#14B8A6}
+.hero h1{font-size:clamp(42px,6vw,78px);font-weight:900;line-height:1.05;letter-spacing:-3px;margin-bottom:24px;color:#FFFFFF}
+.hero h1 .accent{color:#A855F7}
+.hero p{font-size:16px;color:#8aa6aa;max-width:580px;line-height:1.85;margin-bottom:44px}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:72px}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 32px;background:linear-gradient(135deg,#A855F7,#EC4899,#14B8A6);color:#fff;border-radius:11px;text-decoration:none;font-size:14px;font-weight:700;box-shadow:0 6px 24px rgba(99,86,241,.35);transition:all .25s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(20,184,166,.5)}
+.btn-outline{display:inline-flex;align-items:center;gap:8px;padding:13px 32px;background:rgba(255,255,255,.04);border:1px solid rgba(45,212,191,.25);color:#b7e4df;border-radius:11px;text-decoration:none;font-size:14px;font-weight:600;transition:all .25s}
+.btn-outline:hover{background:rgba(20,184,166,.08);border-color:rgba(45,212,191,.5)}
+.hero-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hstat{background:rgba(255,255,255,.04);border:1px solid rgba(45,212,191,.15);border-radius:16px;padding:22px 32px;min-width:140px;text-align:left;backdrop-filter:blur(10px);transition:all .25s}
+.hstat:hover{border-color:rgba(45,212,191,.4);background:rgba(20,184,166,.06);transform:translateY(-3px)}
+.hstat-val{font-size:26px;font-weight:900;color:#FFFFFF;letter-spacing:-1px;margin-bottom:4px}
+.hstat-lbl{font-size:11px;color:#8aa6aa;font-weight:500}
+hr.div{border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(45,212,191,.15),transparent);margin:0}
+.section{padding:90px 60px;max-width:1200px;margin:0 auto}
+.sec-label{display:inline-block;padding:4px 14px;background:rgba(99,86,241,.1);border:1px solid rgba(99,86,241,.25);border-radius:20px;font-size:10px;font-weight:700;color:#A855F7;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px}
+.sec-title{font-size:clamp(26px,3.5vw,42px);font-weight:900;letter-spacing:-1.5px;margin-bottom:12px;color:#FFFFFF}
+.sec-sub{font-size:15px;color:#8aa6aa;line-height:1.8;max-width:520px;margin-bottom:48px}
+.sec-center{text-align:center}
+.sec-center .sec-sub{margin:0 auto 48px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.feat-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:28px;transition:all .3s;position:relative;overflow:hidden}
+.feat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(45,212,191,.4),transparent)}
+.feat-card:hover{border-color:rgba(45,212,191,.3);transform:translateY(-5px);box-shadow:0 16px 48px rgba(20,184,166,.12)}
+.feat-icon{font-size:32px;margin-bottom:16px;display:block}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:8px;color:#f0eeff}
+.feat-desc{font-size:13px;color:#8aa6aa;line-height:1.75}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.steps::before{content:'';position:absolute;top:30px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(45,212,191,.3),transparent)}
+.step{text-align:center;padding:16px}
+.step-num{width:56px;height:56px;background:linear-gradient(135deg,#A855F7,#EC4899,#14B8A6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;margin:0 auto 16px;box-shadow:0 0 20px rgba(99,86,241,.4)}
+.step-title{font-size:14px;font-weight:700;margin-bottom:8px;color:#f0eeff}
+.step-desc{font-size:12px;color:#8aa6aa;line-height:1.7}
+.roles-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.role-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:26px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.role-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(135deg,#A855F7,#EC4899,#14B8A6);transform:scaleX(0);transition:transform .3s}
+.role-card:hover::before{transform:scaleX(1)}
+.role-card:hover{border-color:rgba(45,212,191,.3);transform:translateY(-4px);box-shadow:0 14px 40px rgba(20,184,166,.1)}
+.role-icon{font-size:36px;margin-bottom:12px;display:block}
+.role-name{font-size:15px;font-weight:800;margin-bottom:8px;color:#f0eeff}
+.role-desc{font-size:12px;color:#8aa6aa;line-height:1.8}
+.tech-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.tech-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px 10px;text-align:center;transition:all .3s}
+.tech-card:hover{border-color:rgba(45,212,191,.35);background:rgba(20,184,166,.06);transform:translateY(-3px)}
+.tech-icon{font-size:28px;margin-bottom:8px;display:block}
+.tech-name{font-size:11px;font-weight:600;color:#8aa6aa}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.about-cards{display:flex;flex-direction:column;gap:14px}
+.acard{display:flex;align-items:flex-start;gap:14px;padding:18px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:14px;transition:all .25s}
+.acard:hover{border-color:rgba(45,212,191,.3);transform:translateX(4px)}
+.acard-icon{font-size:26px;flex-shrink:0}
+.acard-title{font-size:13px;font-weight:700;margin-bottom:3px;color:#f0eeff}
+.acard-desc{font-size:12px;color:#8aa6aa;line-height:1.6}
+.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:760px;margin:0 auto}
+.ccard{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:28px;text-align:center;transition:all .25s}
+.ccard:hover{border-color:rgba(45,212,191,.3);transform:translateY(-3px)}
+.ccard-icon{font-size:32px;margin-bottom:12px}
+.ccard-title{font-size:14px;font-weight:700;margin-bottom:6px;color:#f0eeff}
+.ccard-val{font-size:13px;color:#8aa6aa}
+.cta{text-align:center;padding:100px 40px;background:linear-gradient(135deg,rgba(15,118,110,.12),rgba(245,158,11,.05));border-top:1px solid rgba(45,212,191,.1);border-bottom:1px solid rgba(45,212,191,.1);position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(20,184,166,.14) 0%,transparent 70%);pointer-events:none}
+.cta h2{font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-2px;margin-bottom:14px;position:relative}
+.cta p{font-size:16px;color:#8aa6aa;margin-bottom:36px;position:relative}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative}
+footer{padding:56px 60px 36px;border-top:1px solid rgba(255,255,255,.05)}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand p{font-size:13px;color:#8aa6aa;line-height:1.8;max-width:240px;margin-top:12px}
+.footer-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.footer-logo{width:34px;height:34px;background:linear-gradient(135deg,#A855F7,#EC4899,#14B8A6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.footer-logo-name{font-size:16px;font-weight:800;color:#f0eeff}
+.footer-col h4{font-size:12px;font-weight:700;color:#f0eeff;margin-bottom:14px;letter-spacing:.3px}
+.footer-col a{display:block;font-size:13px;color:#8aa6aa;text-decoration:none;margin-bottom:9px;transition:color .2s}
+.footer-col a:hover{color:#14B8A6}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:20px;border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:#8aa6aa}
+@media(max-width:900px){
+  nav{padding:0 20px}.nav-links{display:none}
+  .section{padding:60px 20px}
+  .feat-grid,.steps,.roles-grid{grid-template-columns:1fr 1fr}
+  .tech-grid{grid-template-columns:repeat(3,1fr)}
+  .about-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .hero-stats{flex-direction:column;align-items:center}
+  .roles-grid,.feat-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .hero-video-wrap video{opacity:.4;filter:grayscale(.08) saturate(.95) brightness(.7) contrast(1.1)}
+}
+</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='glass_theme.css') }}">
+<script src="{{ url_for('static', filename='ai_background.js') }}" defer></script>
+<style>
+#ai-network-bg{ z-index:0 !important; opacity:0.28 !important; }
+.hero{ position:relative !important; z-index:2 !important; }
+.hero-video-wrap{ z-index:1 !important; }
+.hero-video-wrap video{ opacity:0.6 !important; }
+.hero > :not(#heroCanvas):not(.hero-grid-overlay):not(.hero-vignette){ z-index:3 !important; }
+</style>
+</head>
+<body>
+
+<video id="edupredictBgVideo" autoplay muted loop playsinline preload="auto"
+  style="position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:0;opacity:0.6;pointer-events:none;filter:brightness(.8) saturate(1.05);">
+  <source src="/static/hero_bg.mp4" type="video/mp4">
+</video>
+<div style="position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(6,9,15,.45),rgba(6,9,15,.72));"></div>
+
+<nav>
+  <a href="{{ url_for('index') }}" class="nav-brand">
+    <div class="nav-logo">🎓</div>
+    <span class="nav-name">EduPredict</span>
+  </a>
+  <div class="nav-links">
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('about') }}">About</a>
+    <a href="{{ url_for('features') }}">Features</a>
+    <a href="{{ url_for('contact') }}">Contact</a>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <a href="{{ url_for('login') }}" class="nav-btn-outline">Sign In</a>
+    <a href="{{ url_for('register') }}" class="nav-btn-fill">Register</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-video-wrap" aria-hidden="true">
+    <div class="hero-video-overlay"></div>
+    <div class="hero-grid-overlay"></div>
+  </div>
+  <div class="hero-breadcrumb">
+    app.py <span>→</span> create_app() <span>→</span> 4 blueprints <span>→</span> Jinja2 glassmorphism
+  </div>
+  <h1>Big-data analytics<br><span class="accent">that keeps students enrolled.</span></h1>
+  <p>EduPredict ingests LMS batches into HDFS, scores every learner with a scikit-learn dropout model, and serves role-gated dashboards — admin, teacher, student, analyst — in one dark glassmorphic shell.</p>
+  <div class="hero-btns">
+    <a href="{{ url_for('login') }}" class="btn-primary">Launch the app →</a>
+    <a href="{{ url_for('features') }}" class="btn-outline">View architecture</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-val" data-target="942">0</div><div class="hstat-lbl">Model AUC (×1000)</div></div>
+    <div class="hstat"><div class="hstat-val">−31%</div><div class="hstat-lbl">Dropout YoY</div></div>
+    <div class="hstat"><div class="hstat-val" data-target="244">0</div><div class="hstat-lbl">K Records ingested</div></div>
+    <div class="hstat"><div class="hstat-val" data-target="99">0</div><div class="hstat-lbl">% System uptime</div></div>
+  </div>
+</div>
+
+<hr class="div">
+
+<section id="about" class="section">
+  <div class="about-grid">
+    <div>
+      <div class="sec-label">About EduPredict</div>
+      <div class="sec-title">Built for the future of <span style="color:#A855F7">education</span></div>
+      <p style="font-size:15px;color:#8aa6aa;line-height:1.9;margin-bottom:14px">EduPredict is an AI-powered analytics platform that helps institutions make data-driven decisions. Hadoop distributed computing + machine learning turns raw student data into actionable insights.</p>
+      <p style="font-size:15px;color:#8aa6aa;line-height:1.9;margin-bottom:28px">From predicting exam scores to detecting at-risk students before they drop out — EduPredict empowers every stakeholder.</p>
+      <a href="{{ url_for('login') }}" class="btn-primary" style="display:inline-flex">Get Started →</a>
+    </div>
+    <div class="about-cards">
+      <div class="acard"><div class="acard-icon">🤖</div><div><div class="acard-title">Machine Learning Models</div><div class="acard-desc">Random Forest & Linear Regression trained on 6,607 student records with 21 features for accurate predictions.</div></div></div>
+      <div class="acard"><div class="acard-icon">🐘</div><div><div class="acard-title">Hadoop Big Data Infrastructure</div><div class="acard-desc">HDFS distributed storage with 3× replication, Apache Spark streaming, and Kafka real-time pipeline.</div></div></div>
+      <div class="acard"><div class="acard-icon">🔐</div><div><div class="acard-title">Secure Role-Based Access</div><div class="acard-desc">SHA-256 authentication with 4 distinct roles — each with carefully defined access controls per SRS.</div></div></div>
+      <div class="acard"><div class="acard-icon">⚡</div><div><div class="acard-title">Real-Time Processing</div><div class="acard-desc">1,247 events/sec processed with 12ms latency — seamlessly integrated batch and stream processing.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<section id="howitworks" class="section">
+  <div class="sec-center">
+    <div class="sec-label">AI/ML Workflow</div>
+    <div class="sec-title">From student data to timely action</div>
+    <div class="sec-sub">A practical pipeline for collecting academic signals, running trained models, and helping staff support learners.</div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-title">Ingest</div><div class="step-desc">Bring academic, attendance, and LMS records into the data pipeline.</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-title">Prepare</div><div class="step-desc">Validate and transform the 21 model features used by EduPredict.</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-title">Predict</div><div class="step-desc">Estimate exam performance and identify students who may need support.</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-title">Act</div><div class="step-desc">Use dashboards, alerts, and reports to make informed interventions.</div></div>
+  </div>
+</section>
+
+<hr class="div">
+
+<section id="roles" class="section sec-center">
+  <div class="sec-label">Role-Based Access</div>
+  <div class="sec-title">The right insight for every user</div>
+  <div class="sec-sub">Sign in to open the workspace designed for your responsibilities.</div>
+  <div class="roles-grid">
+    <div class="role-card"><span class="role-icon">🛡️</span><div class="role-name">Administrator</div><div class="role-desc">Manage users, storage, ingestion, models, and platform operations.</div></div>
+    <div class="role-card"><span class="role-icon">👩‍🏫</span><div class="role-name">Teacher</div><div class="role-desc">Monitor learners, review predictions, and respond to risk alerts.</div></div>
+    <div class="role-card"><span class="role-icon">📈</span><div class="role-name">Analyst</div><div class="role-desc">Explore trends, evaluate models, and produce academic reports.</div></div>
+    <div class="role-card"><span class="role-icon">🎓</span><div class="role-name">Student</div><div class="role-desc">View personal predictions and connect with academic support.</div></div>
+  </div>
+</section>
+
+<hr class="div">
+
+<section id="tech" class="section sec-center">
+  <div class="sec-label">Technology</div>
+  <div class="sec-title">A focused stack for education analytics</div>
+  <div class="tech-grid">
+    <div class="tech-card"><span class="tech-icon">🐍</span><div class="tech-name">Python</div></div>
+    <div class="tech-card"><span class="tech-icon">🌶️</span><div class="tech-name">Flask</div></div>
+    <div class="tech-card"><span class="tech-icon">🧠</span><div class="tech-name">scikit-learn</div></div>
+    <div class="tech-card"><span class="tech-icon">🐼</span><div class="tech-name">Pandas</div></div>
+    <div class="tech-card"><span class="tech-icon">🐘</span><div class="tech-name">Hadoop / HDFS</div></div>
+    <div class="tech-card"><span class="tech-icon">📊</span><div class="tech-name">Chart.js</div></div>
+  </div>
+</section>
+
+<hr class="div">
+
+<section id="contact" class="cta">
+  <h2>Ready to explore student success data?</h2>
+  <p>Open the secure EduPredict workspace or learn more about the platform.</p>
+  <div class="cta-btns">
+    <a href="{{ url_for('login') }}" class="btn-primary">Open workspace →</a>
+    <a href="{{ url_for('contact') }}" class="btn-outline">Contact the team</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo-row"><div class="footer-logo">🎓</div><div class="footer-logo-name">EduPredict</div></div>
+      <p>AI-powered education analytics for better decisions and stronger student outcomes.</p>
+    </div>
+    <div class="footer-col"><h4>Explore</h4><a href="{{ url_for('about') }}">About</a><a href="{{ url_for('features') }}">Features</a><a href="{{ url_for('features') }}#workflow">How it works</a></div>
+    <div class="footer-col"><h4>Access</h4><a href="{{ url_for('login') }}">Sign in</a><a href="{{ url_for('register') }}">Register</a><a href="{{ url_for('contact') }}">Contact</a></div>
+    <div class="footer-col"><h4>Platform</h4><a href="{{ url_for('login') }}">ML Predictions</a><a href="{{ url_for('login') }}">Analytics Dashboard</a><a href="{{ url_for('login') }}">Reports</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 EduPredict</span><span>AI Education Analytics</span></div>
+</footer>
+
+<style>
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-36px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.reveal-left.visible{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(36px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.reveal-right.visible{opacity:1;transform:translateX(0)}
+.d1{transition-delay:.05s}.d2{transition-delay:.12s}.d3{transition-delay:.19s}
+.d4{transition-delay:.26s}.d5{transition-delay:.33s}.d6{transition-delay:.40s}
+.d7{transition-delay:.47s}.d8{transition-delay:.54s}.d9{transition-delay:.61s}
+.feat-card,.role-card,.tech-card,.hstat,.acard,.step{
+  transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s,border-color .3s,background .3s;
+}
+.feat-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 24px 60px rgba(20,184,166,.18);border-color:rgba(45,212,191,.45)!important}
+.role-card:hover{transform:translateY(-7px) scale(1.02);box-shadow:0 20px 50px rgba(20,184,166,.15);border-color:rgba(45,212,191,.4)!important}
+.tech-card:hover{transform:translateY(-6px) scale(1.05);box-shadow:0 14px 36px rgba(20,184,166,.14);border-color:rgba(45,212,191,.4)!important}
+.hstat:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 16px 40px rgba(20,184,166,.16)}
+.acard:hover{transform:translateX(8px);box-shadow:0 8px 28px rgba(20,184,166,.1)}
+.step:hover .step-num{transform:scale(1.12);box-shadow:0 0 32px rgba(20,184,166,.6)}
+.step-num{transition:transform .3s,box-shadow .3s}
+</style>
+<style>
+:root{--landing-muted:#8aa6aa;--landing-cyan:#22d3ee;--landing-purple:#6366f1;--landing-pink:#ec4899}
+body{background:#0a0f1e;color:#f5f0dc}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(34,211,238,.08) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(99,86,241,.06) 0%,transparent 60%)}
+nav{height:68px;padding:0 60px;background:rgba(10,15,30,.85);border-bottom:1px solid rgba(34,211,238,.15)}
+nav::after{height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.5),transparent)}
+.nav-brand{gap:12px}.nav-logo{width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:10px;box-shadow:0 0 20px rgba(34,211,238,.5)}
+.nav-name{font-size:18px;background:linear-gradient(90deg,#22d3ee,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{gap:36px}.nav-links a{font-size:14px;padding:0;color:var(--landing-muted)}
+.nav-btn-outline,.nav-btn-fill{font-size:14px;border-radius:9px}.nav-btn-fill{background:linear-gradient(135deg,#6366f1,#a855f7);box-shadow:0 4px 16px rgba(99,86,241,.4)}
+.hero{min-height:0;padding:140px 60px 80px;background:transparent;z-index:1}
+body{background:#0a0f1e !important;background-image:none !important;color:#f5f0dc}
+.hero-video-wrap{opacity:1}
+.hero-breadcrumb{padding:4px 14px;margin-bottom:16px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);border-radius:20px;font-size:11px;color:#67e8f9;text-transform:uppercase;letter-spacing:1px}
+.hero h1{font-size:clamp(36px,5vw,64px);letter-spacing:-2px;line-height:1.1;margin-bottom:16px}
+.hero h1 .accent{background:linear-gradient(90deg,#22d3ee,#ec4899,#22d3ee);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:landingGrad 4s ease infinite}
+@keyframes landingGrad{0%,100%{background-position:0%}50%{background-position:100%}}
+.hero p{font-size:17px;max-width:580px;margin-bottom:36px;line-height:1.8;color:var(--landing-muted)}
+.hero-btns{gap:16px;margin-bottom:64px}.btn-primary,.btn-outline{border-radius:13px;padding:14px 32px;font-size:15px}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#22d3ee);box-shadow:0 6px 28px rgba(99,86,241,.4)}
+.btn-outline{background:rgba(34,211,238,.04);border-color:rgba(34,211,238,.2);color:#f5f0dc}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1040px;width:100%}
+.hstat{padding:28px;text-align:center;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:16px}
+.hstat-val{font-size:36px;background:linear-gradient(90deg,#22d3ee,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hstat-lbl{font-size:13px;color:var(--landing-muted)}
+.section{padding:80px 60px;max-width:1200px;position:relative;z-index:1}.sec-label{background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.2);color:#67e8f9}
+.sec-title{font-size:clamp(24px,3vw,36px);letter-spacing:-1px}.sec-sub{font-size:15px;color:var(--landing-muted);line-height:1.7}
+.feat-grid,.roles-grid,.steps{gap:16px}.feat-card,.role-card,.tech-card,.acard,.ccard{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:16px}
+.feat-card:hover,.role-card:hover,.tech-card:hover,.acard:hover,.ccard:hover{border-color:rgba(34,211,238,.4);box-shadow:0 16px 48px rgba(34,211,238,.16)}
+.cta{padding:100px 40px;background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(99,86,241,.04));border-top:1px solid rgba(34,211,238,.15)}
+footer{padding:60px 60px 40px;position:relative;z-index:1}
+@media(max-width:900px){nav{padding:0 20px}.hero{padding:120px 20px 60px}.section{padding:60px 20px}.hero-stats{grid-template-columns:1fr 1fr}.footer-top{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.hero-stats{grid-template-columns:1fr}.hero h1{font-size:42px}.footer-top{grid-template-columns:1fr}}
+</style>
+<script>
+  document.querySelectorAll('[data-target]').forEach(function (counter) {
+    var target = Number(counter.dataset.target);
+    var value = 0;
+    var step = Math.max(1, Math.ceil(target / 45));
+    var timer = setInterval(function () {
+      value = Math.min(value + step, target);
+      counter.textContent = value;
+      if (value === target) clearInterval(timer);
+    }, 25);
+  });
+
+  (function(){
+    var vid = document.getElementById('edupredictBgVideo');
+    if (!vid) return;
+    vid.addEventListener('error', function(){
+      console.warn('EduPredict: background video failed to load — check that static/hero_bg.mp4 exists in your static folder.');
+    });
+    vid.addEventListener('playing', function(){
+      console.log('EduPredict: background video is playing ✔');
+    });
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      vid.style.display = 'none';
+    }
+  })();
+</script>
+
+<section id="features" class="section">
+  <div class="sec-label">Features</div>
+  <div class="sec-title">Everything you need to manage student success</div>
+  <div class="sec-sub">Built on SRS requirements — from data ingestion to real-time alerts, all in one platform.</div>
+  <div class="feat-grid">
+    <div class="feat-card"><span class="feat-icon">🤖</span><div class="feat-title">ML Prediction Engine</div><div class="feat-desc">Random Forest predicts exam scores and at-risk students using 21 real features from Student Performance Dataset.</div></div>
+    <div class="feat-card"><span class="feat-icon">📊</span><div class="feat-title">Analytics Dashboard</div><div class="feat-desc">Interactive Chart.js visualizations — score distribution, risk breakdown, attendance vs performance trends.</div></div>
+    <div class="feat-card"><span class="feat-icon">🔔</span><div class="feat-title">Automated Alerts</div><div class="feat-desc">Configurable thresholds trigger real-time notifications for low attendance, score risk, and dropout anomalies.</div></div>
+    <div class="feat-card"><span class="feat-icon">🗄️</span><div class="feat-title">HDFS Data Storage</div><div class="feat-desc">Hadoop Distributed File System with 3× replication, 4 active DataNodes, and 2.4TB scalable storage.</div></div>
+    <div class="feat-card"><span class="feat-icon">⚡</span><div class="feat-title">Real-Time Processing</div><div class="feat-desc">Apache Kafka + Spark Streaming pipeline processing 1,247 events/sec with 12ms latency.</div></div>
+    <div class="feat-card"><span class="feat-icon">🔐</span><div class="feat-title">Role-Based Access Control</div><div class="feat-desc">SHA-256 secured authentication with 4 roles — Administrator, Teacher, Analyst, Student.</div></div>
+    <div class="feat-card"><span class="feat-icon">📥</span><div class="feat-title">Data Ingestion Pipeline</div><div class="feat-desc">Upload CSV, JSON, XML datasets — Academic Records, Demographics, LMS Activity — into HDFS pipeline.</div></div>
+    <div class="feat-card"><span class="feat-icon">📚</span><div class="feat-title">Course Demand Forecast</div><div class="feat-desc">Predict future enrollment demand by course category with growth trend analysis and faculty recommendations.</div></div>
+    <div class="feat-card"><span class="feat-icon">💬</span><div class="feat-title">Support Portal</div><div class="feat-desc">Full ticket system with category, priority, history tracking, FAQ accordion, and multi-channel contact support.</div></div>
+  </div>
+</section>
+
+<hr class="div">
+
+</body>
+</html>

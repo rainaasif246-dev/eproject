@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>EduPredict — Data Ingestion</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body>
+{% set active_page = 'ingest' %}
+{% include '_sidebar.html' %}
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div><div class="topbar-title">Data Ingestion Pipeline</div><div class="topbar-sub">Upload and ingest educational datasets into HDFS</div></div>
+        </div>
+        <div class="topbar-right"><div class="status-dot">Pipeline Active</div></div>
+    </div>
+    <div class="page-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}{% for c,m in messages %}<div class="alert alert-{{ c }}">{{ m }}</div>{% endfor %}{% endif %}
+        {% endwith %}
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Ingest New Dataset</div>
+                <div class="card-sub">Upload CSV, JSON, or XML files into the HDFS pipeline</div>
+                <form action="/ingest" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Dataset Type</label>
+                        <select name="dataset_type">
+                            <option value="academic">Academic Records</option>
+                            <option value="demographics">Student Demographics</option>
+                            <option value="lms">LMS Activity Data</option>
+                            <option value="attendance">Attendance Records</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Source</label>
+                        <select name="data_source">
+                            <option value="historical">Historical Batch</option>
+                            <option value="realtime">Real-Time Stream</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload File (CSV / JSON / XML)</label>
+                        <input type="file" name="dataset_file" accept=".csv,.json,.xml">
+                    </div>
+                    <div class="form-group">
+                        <label>Data Format</label>
+                        <select name="data_format">
+                            <option>CSV</option><option>JSON</option><option>XML</option>
+                        </select>
+                    </div>
+                    <button type="submit">Ingest into HDFS →</button>
+                </form>
+            </div>
+            <div class="card">
+                <div class="card-title">Pipeline Stats</div>
+                <div class="card-sub">Current ingestion pipeline health</div>
+                <div class="grid-2" style="margin-bottom:16px;">
+                    <div style="background:rgba(168,85,247,0.08);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:22px;font-weight:800;color:#a855f7;">244K</div>
+                        <div style="font-size:11px;color:#7c6fa0;margin-top:4px;">Total Records</div>
+                    </div>
+                    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:16px;text-align:center;">
+                        <div style="font-size:22px;font-weight:800;color:#22c55e;">5</div>
+                        <div style="font-size:11px;color:#7c6fa0;margin-top:4px;">Datasets Loaded</div>
+                    </div>
+                </div>
+                <div class="card-title" style="margin-bottom:12px;">Recent Ingestion Log</div>
+                <table class="data-table">
+                    <thead><tr><th>Timestamp</th><th>Type</th><th>Records</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for log in ingestion_logs %}
+                        <tr>
+                            <td style="color:#7c6fa0;">{{ log.timestamp }}</td>
+                            <td>{{ log.dataset_type }}</td>
+                            <td style="color:#c084fc;">{{ log.records }}</td>
+                            <td><span class="badge badge-{{ log.status_class }}">{{ log.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- DATA INTEGRITY REPORT -->
+        <div class="card" style="margin-top:1.4rem;">
+            <div class="card-title">🔍 Data Integrity Report</div>
+            <div class="card-sub">Validation summary of last ingested dataset — missing fields, nulls, anomalies</div>
+            <div class="grid-2" style="margin-bottom:1.2rem;">
+                <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:1rem;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#22c55e;">94.2%</div>
+                    <div style="font-size:.78rem;color:#7c6fa0;margin-top:3px;">Data Completeness Score</div>
+                </div>
+                <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:1rem;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#f87171;">384</div>
+                    <div style="font-size:.78rem;color:#7c6fa0;margin-top:3px;">Missing / Null Values Found</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:1rem;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#fbbf24;">27</div>
+                    <div style="font-size:.78rem;color:#7c6fa0;margin-top:3px;">Duplicate Records Detected</div>
+                </div>
+                <div style="background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:1rem;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#c084fc;">6,196</div>
+                    <div style="font-size:.78rem;color:#7c6fa0;margin-top:3px;">Valid Records Passed</div>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Field / Column</th><th>Total Records</th><th>Missing</th><th>Missing %</th><th>Action Taken</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Student ID</td><td>6,607</td><td>0</td><td>0%</td><td>—</td><td><span class="badge badge-success">Clean</span></td></tr>
+                    <tr><td>Attendance (%)</td><td>6,607</td><td>112</td><td>1.7%</td><td>Imputed with column mean</td><td><span class="badge badge-warning">Imputed</span></td></tr>
+                    <tr><td>Previous Scores</td><td>6,607</td><td>89</td><td>1.3%</td><td>Imputed with median</td><td><span class="badge badge-warning">Imputed</span></td></tr>
+                    <tr><td>Parental Education</td><td>6,607</td><td>143</td><td>2.2%</td><td>Filled with mode (High School)</td><td><span class="badge badge-warning">Imputed</span></td></tr>
+                    <tr><td>Family Income</td><td>6,607</td><td>40</td><td>0.6%</td><td>Filled with mode (Medium)</td><td><span class="badge badge-warning">Imputed</span></td></tr>
+                    <tr><td>Exam Score</td><td>6,607</td><td>0</td><td>0%</td><td>—</td><td><span class="badge badge-success">Clean</span></td></tr>
+                    <tr><td>Duplicate Rows</td><td>6,607</td><td>27</td><td>0.4%</td><td>Removed — kept first occurrence</td><td><span class="badge badge-danger">Removed</span></td></tr>
+                </tbody>
+            </table>
+            <div style="margin-top:1rem;padding:.8rem 1rem;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.15);border-radius:10px;font-size:.82rem;color:#86efac;">
+                ✅ <strong>Pipeline Result:</strong> 6,196 clean records written to HDFS <code>/data/academic/validated/</code> — 411 records flagged for review in <code>/data/quarantine/</code>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

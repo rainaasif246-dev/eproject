@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPredict — Real-Time Processing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .event-danger { color: #fca5a5; }
+        .event-success { color: #86efac; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+{% set active_page = 'realtime' %}
+{% include '_sidebar.html' %}
+
+<div class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="menu-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <a href="/dashboard" class="back-btn">← <span>Dashboard</span></a>
+            <div><div class="topbar-title">Real-Time Processing Engine</div><div class="topbar-sub">Live streaming pipeline · Kafka + Spark + Hadoop MapReduce</div></div>
+        </div>
+        <div class="topbar-right">
+            <div class="status-dot">Stream Active</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+
+        <!-- LIVE STATS -->
+        <div class="stats-grid">
+            <div class="stat-card green">
+                <div class="stat-icon green">⚡</div>
+                <div class="stat-value" style="color:#22c55e;" id="eventsCount">1,247</div>
+                <div class="stat-label">Events / Second</div>
+                <div class="stat-change up">↑ Live updating</div>
+            </div>
+            <div class="stat-card cyan">
+                <div class="stat-icon cyan">⏱️</div>
+                <div class="stat-value" style="color:#22d3ee;" id="latency">12 ms</div>
+                <div class="stat-label">Processing Latency</div>
+                <div class="stat-change up">↓ Below threshold</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-icon purple">🔁</div>
+                <div class="stat-value" style="color:#c084fc;">50K</div>
+                <div class="stat-label">Records / Min (Batch)</div>
+                <div class="stat-change up">↑ MapReduce active</div>
+            </div>
+            <div class="stat-card pink">
+                <div class="stat-icon pink">🚨</div>
+                <div class="stat-value" style="color:#ec4899;" id="anomalyCount">3</div>
+                <div class="stat-label">Anomalies Detected</div>
+                <div class="stat-change down">↑ Requires attention</div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Live Event Throughput</div>
+                <div class="card-sub">Real-time events per second — auto-refreshes every 2s</div>
+                <canvas id="liveChart" height="200"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-title">Anomaly Detection Feed</div>
+                <div class="card-sub">Live academic anomaly events from ML inference engine</div>
+                <div id="anomalyFeed" style="max-height:240px; overflow-y:auto;">
+                    {% for event in anomaly_events %}
+                    <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <span style="font-size:16px; margin-top:1px;">{% if event.level == 'danger' %}🔴{% else %}🟢{% endif %}</span>
+                        <div>
+                            <div class="event-msg event-{{ event.level }}" style="font-size:12px; font-weight:600;">{{ event.message }}</div>
+                            <div style="font-size:11px; color:#5a4f7a; margin-top:2px;">{{ event.time }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- PIPELINE STATUS TABLE -->
+        <div class="card">
+            <div class="card-title">Processing Pipeline Status</div>
+            <div class="card-sub">End-to-end data pipeline — ingestion to HDFS storage</div>
+            <table class="data-table">
+                <thead>
+                    <tr><th>Pipeline Stage</th><th>Technology</th><th>Status</th><th>Throughput</th><th>Latency</th><th>Integration</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Data Ingestion</td>
+                        <td style="color:#c084fc;">Apache Kafka</td>
+                        <td><span class="badge badge-success">Running</span></td>
+                        <td>1,247 msg/s</td>
+                        <td>8 ms</td>
+                        <td><span class="badge badge-purple">Real-Time</span></td>
+                    </tr>
+                    <tr>
+                        <td>Stream Processing</td>
+                        <td style="color:#c084fc;">Apache Spark Streaming</td>
+                        <td><span class="badge badge-success">Running</span></td>
+                        <td>980 rec/s</td>
+                        <td>12 ms</td>
+                        <td><span class="badge badge-purple">Real-Time</span></td>
+                    </tr>
+                    <tr>
+                        <td>Batch Processing</td>
+                        <td style="color:#c084fc;">Hadoop MapReduce</td>
+                        <td><span class="badge badge-success">Running</span></td>
+                        <td>50K rec/min</td>
+                        <td>2.1 s</td>
+                        <td><span class="badge badge-warning">Batch</span></td>
+                    </tr>
+                    <tr>
+                        <td>Anomaly Detection</td>
+                        <td style="color:#c084fc;">ML Inference Engine</td>
+                        <td><span class="badge badge-success">Running</span></td>
+                        <td>Real-time</td>
+                        <td>18 ms</td>
+                        <td><span class="badge badge-purple">Real-Time</span></td>
+                    </tr>
+                    <tr>
+                        <td>HDFS Write</td>
+                        <td style="color:#c084fc;">HDFS DataNode</td>
+                        <td><span class="badge badge-success">Running</span></td>
+                        <td>120 MB/s</td>
+                        <td>5 ms</td>
+                        <td><span class="badge badge-warning">Batch</span></td>
+                    </tr>
+                    <tr>
+                        <td>Impala Query Layer</td>
+                        <td style="color:#c084fc;">Apache Impala</td>
+                        <td><span class="badge badge-success">Running</span></td>
+                        <td>On-demand</td>
+                        <td>45 ms</td>
+                        <td><span class="badge badge-purple">Real-Time</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ANOMALY DETECTION SIMULATION -->
+        <div class="card">
+            <div class="card-title">🚨 Live Anomaly Detection Engine</div>
+            <div class="card-sub">ML threshold-based anomaly simulation — auto-updates every 3s</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.2rem;">
+                <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#f87171;" id="anomTotalCount">3</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Active Anomalies</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#fbbf24;" id="anomResolvedCount">14</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Resolved Today</div>
+                </div>
+                <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#22c55e;" id="anomModelConf">96.2%</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Model Confidence</div>
+                </div>
+            </div>
+            <div id="anomalySimFeed" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+
+        <!-- SPARK PARALLEL PROCESSING SIMULATION -->
+        <div class="card">
+            <div class="card-title">⚡ Apache Spark — Parallel Processing Simulation</div>
+            <div class="card-sub">Distributed job execution across executor nodes — live stage progress</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.2rem;">
+                <div style="background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.3rem;font-weight:800;color:#c084fc;">4</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Executor Nodes</div>
+                </div>
+                <div style="background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.3rem;font-weight:800;color:#22d3ee;" id="sparkTasks">32</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Active Tasks</div>
+                </div>
+                <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.3rem;font-weight:800;color:#22c55e;" id="sparkCompleted">187</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Tasks Completed</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                    <div style="font-size:1.3rem;font-weight:800;color:#fbbf24;" id="sparkShuffle">2.4 GB</div>
+                    <div style="font-size:.75rem;color:#7c6fa0;margin-top:3px;">Shuffle Read</div>
+                </div>
+            </div>
+            <!-- Executor Progress Bars -->
+            <div style="display:flex;flex-direction:column;gap:10px;" id="sparkExecutors">
+                <div style="font-size:.8rem;color:#7c6fa0;margin-bottom:4px;">Executor Node Progress</div>
+            </div>
+        </div>
+
+        <!-- BATCH vs STREAM INFO -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Batch Processing Summary</div>
+                <div class="card-sub">Latest completed Hadoop MapReduce jobs</div>
+                <table class="data-table">
+                    <thead><tr><th>Job ID</th><th>Dataset</th><th>Records</th><th>Duration</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td style="color:#7c6fa0;">#JOB-0041</td><td>Academic Records</td><td>6,607</td><td>2.1s</td><td><span class="badge badge-success">Done</span></td></tr>
+                        <tr><td style="color:#7c6fa0;">#JOB-0040</td><td>Attendance Logs</td><td>89,450</td><td>18.4s</td><td><span class="badge badge-success">Done</span></td></tr>
+                        <tr><td style="color:#7c6fa0;">#JOB-0039</td><td>LMS Activity</td><td>142,300</td><td>31.2s</td><td><span class="badge badge-success">Done</span></td></tr>
+                        <tr><td style="color:#7c6fa0;">#JOB-0038</td><td>Demographics</td><td>6,607</td><td>1.8s</td><td><span class="badge badge-success">Done</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card">
+                <div class="card-title">Stream Integration Health</div>
+                <div class="card-sub">Seamless batch + real-time pipeline integration status</div>
+                <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.15); border-radius:10px;">
+                        <div><div style="font-size:13px; font-weight:600; color:#86efac;">Kafka → Spark Integration</div><div style="font-size:11px; color:#7c6fa0; margin-top:2px;">Real-time stream to processing</div></div>
+                        <span class="badge badge-success">Healthy</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.15); border-radius:10px;">
+                        <div><div style="font-size:13px; font-weight:600; color:#86efac;">Spark → HDFS Write</div><div style="font-size:11px; color:#7c6fa0; margin-top:2px;">Processed data to distributed storage</div></div>
+                        <span class="badge badge-success">Healthy</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.15); border-radius:10px;">
+                        <div><div style="font-size:13px; font-weight:600; color:#86efac;">HDFS → ML Model Feed</div><div style="font-size:11px; color:#7c6fa0; margin-top:2px;">Batch data to inference engine</div></div>
+                        <span class="badge badge-success">Healthy</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.15); border-radius:10px;">
+                        <div><div style="font-size:13px; font-weight:600; color:#c084fc;">ML → Alert Engine</div><div style="font-size:11px; color:#7c6fa0; margin-top:2px;">Predictions to notification system</div></div>
+                        <span class="badge badge-purple">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const gridColor = 'rgba(255,255,255,0.05)';
+    const tickColor = '#7c6fa0';
+    const labels = Array.from({length: 12}, (_, i) => `${(11-i)*5}s`);
+    const liveData = [980, 1050, 1120, 1090, 1200, 1180, 1247, 1300, 1260, 1310, 1280, 1247];
+
+    const liveChart = new Chart(document.getElementById('liveChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Events/sec',
+                data: liveData,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34,197,94,0.08)',
+                fill: true, tension: 0.4,
+                pointBackgroundColor: '#22c55e',
+                pointRadius: 4, pointHoverRadius: 6
+            }]
+        },
+        options: {
+            animation: false,
+            plugins: { legend: { labels: { color: '#c4b8e8', font: { size: 12 } } } },
+            scales: {
+                x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+                y: { ticks: { color: tickColor }, grid: { color: gridColor }, min: 800 }
+            }
+        }
+    });
+
+    setInterval(() => {
+        const newVal = Math.floor(1100 + Math.random() * 300);
+        liveChart.data.datasets[0].data.shift();
+        liveChart.data.datasets[0].data.push(newVal);
+        liveChart.update();
+        document.getElementById('eventsCount').textContent = newVal.toLocaleString();
+        document.getElementById('latency').textContent = (10 + Math.floor(Math.random() * 8)) + ' ms';
+    }, 2000);
+
+    // ── ANOMALY DETECTION SIMULATION ──
+    const anomalyTemplates = [
+        { msg: 'Student ID #{id} — Attendance dropped to {val}% (threshold: 60%)', level: 'danger', type: 'Low Attendance' },
+        { msg: 'Student ID #{id} — Predicted score: {val}% (Critical Risk)', level: 'danger', type: 'Score Risk' },
+        { msg: 'Student ID #{id} — Dropout probability: {val}% (High Risk)', level: 'danger', type: 'Dropout Risk' },
+        { msg: 'Student ID #{id} — Attendance recovered to {val}%', level: 'success', type: 'Resolved' },
+        { msg: 'Batch scan complete — {val} students flagged for intervention', level: 'warning', type: 'Batch Alert' },
+    ];
+    let anomActive = 3, anomResolved = 14;
+    function addAnomalyEvent() {
+        const t = anomalyTemplates[Math.floor(Math.random() * anomalyTemplates.length)];
+        const id = Math.floor(1000 + Math.random() * 9000);
+        const val = t.level === 'success' ? Math.floor(62 + Math.random() * 15) :
+                    t.type === 'Batch Alert' ? Math.floor(8 + Math.random() * 12) :
+                    Math.floor(28 + Math.random() * 35);
+        const msg = t.msg.replace('{id}', id).replace('{val}', val);
+        const now = new Date();
+        const time = now.toTimeString().slice(0,8);
+        const color = t.level === 'danger' ? '#fca5a5' : t.level === 'success' ? '#86efac' : '#fde68a';
+        const icon = t.level === 'danger' ? '🔴' : t.level === 'success' ? '🟢' : '🟡';
+        const feed = document.getElementById('anomalySimFeed');
+        const div = document.createElement('div');
+        div.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);animation:fadeIn .4s ease;';
+        div.innerHTML = `<span style="font-size:14px;margin-top:1px;">${icon}</span><div><div style="font-size:12px;font-weight:600;color:${color};">${msg}</div><div style="font-size:11px;color:#5a4f7a;margin-top:2px;">${time} &nbsp;·&nbsp; ${t.type}</div></div>`;
+        feed.insertBefore(div, feed.firstChild);
+        if (feed.children.length > 8) feed.removeChild(feed.lastChild);
+        if (t.level === 'danger') { anomActive++; }
+        else if (t.level === 'success') { anomActive = Math.max(0, anomActive - 1); anomResolved++; }
+        document.getElementById('anomTotalCount').textContent = anomActive;
+        document.getElementById('anomResolvedCount').textContent = anomResolved;
+        document.getElementById('anomalyCount').textContent = anomActive;
+        document.getElementById('anomModelConf').textContent = (95 + Math.random() * 3).toFixed(1) + '%';
+    }
+    // Seed initial events
+    for (let i = 0; i < 4; i++) addAnomalyEvent();
+    setInterval(addAnomalyEvent, 3000);
+
+    // ── SPARK PARALLEL PROCESSING SIMULATION ──
+    const executors = [
+        { name: 'Executor-1 (Node: worker-01)', color: '#a855f7' },
+        { name: 'Executor-2 (Node: worker-02)', color: '#22d3ee' },
+        { name: 'Executor-3 (Node: worker-03)', color: '#22c55e' },
+        { name: 'Executor-4 (Node: worker-04)', color: '#f97316' },
+    ];
+    const execContainer = document.getElementById('sparkExecutors');
+    const label = execContainer.querySelector('div');
+    const barEls = executors.map((ex, i) => {
+        const wrap = document.createElement('div');
+        wrap.innerHTML = `
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;color:#c4b8e8;margin-bottom:4px;">
+                <span>${ex.name}</span>
+                <span id="execPct${i}">0%</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:6px;height:10px;overflow:hidden;">
+                <div id="execBar${i}" style="height:100%;width:0%;background:${ex.color};border-radius:6px;transition:width .6s ease;"></div>
+            </div>`;
+        execContainer.appendChild(wrap);
+        return i;
+    });
+    let sparkCompleted = 187;
+    function updateSpark() {
+        executors.forEach((_, i) => {
+            const pct = Math.floor(40 + Math.random() * 60);
+            document.getElementById(`execBar${i}`).style.width = pct + '%';
+            document.getElementById(`execPct${i}`).textContent = pct + '%';
+        });
+        sparkCompleted += Math.floor(2 + Math.random() * 6);
+        document.getElementById('sparkCompleted').textContent = sparkCompleted;
+        document.getElementById('sparkTasks').textContent = Math.floor(24 + Math.random() * 16);
+        const shuffleGB = (2 + Math.random() * 1.5).toFixed(1);
+        document.getElementById('sparkShuffle').textContent = shuffleGB + ' GB';
+    }
+    updateSpark();
+    setInterval(updateSpark, 2500);
+</script>
+</body>
+</html>

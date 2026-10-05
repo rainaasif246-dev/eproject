@@ -1,0 +1,352 @@
+/* Shared Neon Arctic theme for public and authentication pages. */
+:root {
+  --glass-bg: #06121F;
+  --glass-panel: rgba(11, 29, 42, 0.92);
+  --glass-panel-soft: rgba(34, 211, 238, 0.08);
+  --glass-border: rgba(34, 211, 238, 0.24);
+  --glass-gold: #22D3EE;
+  --glass-gold-light: #67E8F9;
+  --glass-gold-dark: #0891B2;
+  --slate: #64748B;
+  --hero-gradient: linear-gradient(135deg, #06121F, #0B1D2A, #164E63);
+  --card-gradient: linear-gradient(135deg, #0B1D2A, #12344A, #155E75);
+  --accent-gradient: linear-gradient(135deg, #22D3EE, #A78BFA);
+  --glass-text: #FFFFFF;
+  --glass-muted: #94A3B8;
+}
+
+#ai-network-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  opacity: 0.72;
+  z-index: 0;
+}
+
+body > nav,
+body > .hero,
+body > .page-hero,
+body > .section,
+body > hr,
+body > footer {
+  position: relative;
+  z-index: 1;
+}
+
+body {
+  background: var(--glass-bg) !important;
+  color: var(--glass-text) !important;
+  background-image: var(--hero-gradient) !important;
+}
+
+nav {
+  background: rgba(10, 13, 16, 0.88) !important;
+  border-bottom-color: rgba(30, 163, 184, 0.15) !important;
+  backdrop-filter: blur(24px);
+}
+
+nav::after,
+.form-card::before {
+  background: linear-gradient(90deg, transparent, rgba(30, 163, 184, 0.5), transparent) !important;
+}
+
+.nav-logo,
+.nav-btn-fill,
+.btn-primary,
+.submit-btn,
+.brand-logo,
+.snum,
+.step-num,
+.footer-logo,
+.nav-signin {
+  background: var(--accent-gradient) !important;
+  color: #0a0d10 !important;
+  box-shadow: 0 6px 28px rgba(30, 163, 184, 0.45) !important;
+}
+
+.nav-name,
+.brand-name,
+.footer-brand .logo-name {
+  background: var(--accent-gradient) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.nav-btn-outline,
+.btn-secondary,
+.btn-outline {
+  border-color: rgba(30, 163, 184, 0.3) !important;
+  color: #A855F7 !important;
+}
+
+.nav-btn-outline:hover,
+.btn-secondary:hover,
+.btn-outline:hover {
+  background: rgba(30, 163, 184, 0.08) !important;
+  border-color: rgba(30, 163, 184, 0.55) !important;
+}
+
+.about-card,
+.info-card,
+.form-card,
+.feat-card,
+.tech-card,
+.role-card,
+.stat-box,
+.faq-item,
+.ccard,
+.acard,
+.hstat,
+.feat,
+.demo-box,
+.role-lbl {
+  background: rgba(30, 163, 184, 0.05) !important;
+  border-color: rgba(30, 163, 184, 0.15) !important;
+  backdrop-filter: blur(16px);
+}
+
+.about-card:hover,
+.info-card:hover,
+.form-card:hover,
+.feat-card:hover,
+.tech-card:hover,
+.role-card:hover,
+.stat-box:hover,
+.faq-item:hover,
+.ccard:hover,
+.acard:hover,
+.hstat:hover,
+.feat:hover,
+.demo-btn:hover,
+.role-lbl:hover {
+  border-color: rgba(30, 163, 184, 0.5) !important;
+  box-shadow: 0 16px 44px rgba(30, 163, 184, 0.18) !important;
+}
+
+.sec-badge,
+.sec-label,
+.feat-tag,
+.ficon.p,
+.info-icon,
+.demo-label {
+  color: #A855F7 !important;
+  background: rgba(30, 163, 184, 0.12) !important;
+  border-color: rgba(30, 163, 184, 0.3) !important;
+}
+
+.page-sub,
+.sec-sub,
+.about-card-desc,
+.about-text p,
+.info-val,
+.form-sub,
+.faq-a,
+.footer-brand p,
+.footer-col a,
+.footer-bottom p,
+.sub,
+.ftext {
+  color: #94A3B8 !important;
+}
+
+input,
+select,
+textarea,
+.input-wrap input,
+.input-wrap select {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(103, 232, 249, 0.24) !important;
+  color: var(--glass-text) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.input-wrap input:focus,
+.input-wrap select:focus {
+  border-color: #6356F1 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.14), 0 0 18px rgba(34, 211, 238, 0.1) !important;
+}
+
+label,
+.field label {
+  color: rgba(30, 163, 184, 0.8) !important;
+}
+
+.left-bg {
+  background: var(--hero-gradient) !important;
+}
+
+.right {
+  background: rgba(11, 13, 16, 0.97) !important;
+  border-color: rgba(30, 163, 184, 0.15) !important;
+}
+
+.o1 { background: radial-gradient(circle, rgba(30, 163, 184, 0.18) 0%, transparent 65%) !important; }
+.o2 { background: radial-gradient(circle, rgba(56, 211, 159, 0.1) 0%, transparent 65%) !important; }
+.o3 { background: radial-gradient(circle, rgba(30, 163, 184, 0.07) 0%, transparent 65%) !important; }
+
+.hero-bg {
+  background: var(--hero-gradient) !important;
+}
+
+.hero h1 .accent,
+.hero-breadcrumb span,
+.nav-sub,
+.footer-col a:hover {
+  color: #A855F7 !important;
+}
+
+.nav-links a:hover,
+.btn-outline:hover,
+.hstat:hover,
+.tech-card:hover {
+  background: rgba(30, 163, 184, 0.08) !important;
+}
+
+.nav-links a,
+.hero p,
+.hero-breadcrumb,
+.hstat-lbl,
+.feat-desc,
+.step-desc,
+.role-desc,
+.tech-name,
+.acard-desc,
+.ccard-val,
+.cta p,
+.footer-bottom {
+  color: #94A3B8 !important;
+}
+
+.hero h1,
+.sec-title,
+.hstat-val,
+.feat-title,
+.step-title,
+.role-name,
+.acard-title,
+.ccard-title,
+.footer-logo-name,
+.footer-col h4 {
+  color: #FFFFFF !important;
+}
+
+.hero-breadcrumb,
+.hstat,
+.feat-card,
+.role-card,
+.tech-card,
+.acard,
+.ccard {
+  border-color: rgba(30, 163, 184, 0.14) !important;
+}
+
+.feat-card::after,
+.steps::before,
+hr.div {
+  background: linear-gradient(90deg, transparent, rgba(30, 163, 184, 0.4), transparent) !important;
+}
+
+.feat-card:hover,
+.role-card:hover,
+.acard:hover,
+.ccard:hover {
+  border-color: rgba(30, 163, 184, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(30, 163, 184, 0.12) !important;
+}
+
+.role-card::before {
+  background: var(--accent-gradient) !important;
+}
+
+.cta {
+  background: linear-gradient(135deg, rgba(30, 163, 184, 0.1), rgba(56, 211, 159, 0.05)) !important;
+  border-color: rgba(30, 163, 184, 0.14) !important;
+}
+
+.cta::before {
+  background: radial-gradient(ellipse, rgba(30, 163, 184, 0.14) 0%, transparent 70%) !important;
+}
+
+.cta-wrap {
+  background: linear-gradient(135deg, rgba(30, 163, 184, 0.08), rgba(56, 211, 159, 0.04)) !important;
+  border-color: rgba(30, 163, 184, 0.14) !important;
+}
+
+hr.div,
+.divider {
+  background: linear-gradient(90deg, transparent, rgba(30, 163, 184, 0.25), transparent) !important;
+}
+
+/* NEON ARCTIC OVERRIDES */
+body { background: var(--hero-gradient) !important; }
+nav, .right { background: rgba(6, 18, 31, 0.94) !important; }
+.about-card, .info-card, .form-card, .feat-card, .tech-card,
+.role-card, .stat-box, .faq-item, .ccard, .acard, .hstat,
+.feat, .demo-box, .role-lbl {
+  background: var(--card-gradient) !important;
+  border-color: rgba(34, 211, 238, 0.2) !important;
+}
+.hero-bg, .left-bg { background: var(--hero-gradient) !important; }
+.nav-logo, .nav-btn-fill, .btn-primary, .submit-btn, .brand-logo,
+.snum, .step-num, .footer-logo, .nav-signin {
+  background: var(--accent-gradient) !important;
+  box-shadow: 0 6px 28px rgba(34, 211, 238, 0.3) !important;
+}
+.hero h1 .accent, .hero-breadcrumb span, .nav-sub,
+.footer-col a:hover, .sec-badge, .sec-label, .feat-tag,
+.ficon.p, .info-icon, .demo-label { color: #67E8F9 !important; }
+.nav-btn-outline, .btn-secondary, .btn-outline {
+  border-color: rgba(34, 211, 238, 0.35) !important;
+  color: #67E8F9 !important;
+}
+.hero h1, .sec-title, .hstat-val, .feat-title, .step-title,
+.role-name, .acard-title, .ccard-title, .footer-logo-name, .footer-col h4 {
+  color: #F8FAFC !important;
+}
+.page-sub, .sec-sub, .about-card-desc, .about-text p, .info-val,
+.form-sub, .faq-a, .footer-brand p, .footer-col a, .footer-bottom p,
+.sub, .ftext, .hero p, .hstat-lbl, .feat-desc, .step-desc,
+.role-desc, .tech-name, .acard-desc, .ccard-val, .cta p, .footer-bottom {
+  color: #A5C4D0 !important;
+}
+.cta, .cta-wrap { background: var(--card-gradient) !important; border-color: rgba(34, 211, 238, 0.18) !important; }
+
+.hero-breadcrumb {
+  border-color: rgba(34, 211, 238, 0.35) !important;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.08), inset 0 0 14px rgba(34, 211, 238, 0.04);
+}
+
+/* Consistent Neon Arctic typography across every public page. */
+body, body p, body li, body td, body dd { color: #A5C4D0; }
+body h1, body h2, body h3, body h4, body h5, body h6,
+.hero h1, .page-title, .sec-title, .card-title, .feat-title,
+.step-title, .role-name, .acard-title, .ccard-title,
+.fhead h2, .headline, .footer-logo-name { color: #F8FAFC !important; }
+.hero h1 .accent, .grad-text, .hero-breadcrumb span,
+.nav-sub, .sec-badge, .sec-label, .feat-tag, .demo-label,
+.footer-col a:hover, .bottom-link a, .terms a { color: #67E8F9 !important; }
+.grad-text, .hero h1 .accent {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: #67E8F9 !important;
+  animation: none !important;
+}
+.nav-links a, .hero p, .page-sub, .sec-sub, .feat-desc,
+.step-desc, .role-desc, .tech-name, .acard-desc, .ccard-val,
+.form-sub, .fhead p, .sub, .ftext, .footer-brand p,
+.footer-col a, .footer-bottom, .footer-bottom p { color: #A5C4D0 !important; }
+
+/* Crisp Neon Arctic surfaces without glass blur. */
+nav, .hero-breadcrumb, .about-card, .info-card, .form-card,
+.feat-card, .tech-card, .role-card, .stat-box, .faq-item,
+.ccard, .acard, .hstat, .feat, .demo-box, .role-lbl, .right {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}

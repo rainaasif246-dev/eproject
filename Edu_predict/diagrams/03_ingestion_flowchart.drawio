@@ -1,0 +1,102 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Data Ingestion Flowchart">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- START -->
+        <mxCell id="2" value="START" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="380" y="30" width="160" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Select Dataset -->
+        <mxCell id="3" value="Admin / Analyst Selects Dataset Type" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="320" y="130" width="280" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Decision Source -->
+        <mxCell id="4" value="Source Type?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="230" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Batch -->
+        <mxCell id="5" value="Upload CSV /&#xa;Parquet File" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="120" y="370" width="180" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Stream -->
+        <mxCell id="6" value="Kafka Stream&#xa;Connector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="620" y="370" width="180" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Validate Batch -->
+        <mxCell id="7" value="Validate&#xa;Data Format" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="120" y="470" width="180" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Validate Stream -->
+        <mxCell id="8" value="Buffer &amp;&#xa;Validate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="620" y="470" width="180" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Decision Valid Batch -->
+        <mxCell id="9" value="Valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="570" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Decision Valid Stream -->
+        <mxCell id="10" value="Valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="570" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Log Error -->
+        <mxCell id="11" value="Log Error" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="30" y="680" width="120" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Discard -->
+        <mxCell id="12" value="Discard Record" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="680" width="140" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Write HDFS Batch -->
+        <mxCell id="13" value="Write to HDFS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="120" y="690" width="180" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Write HDFS Stream -->
+        <mxCell id="14" value="Write to HDFS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="620" y="690" width="180" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Update Log -->
+        <mxCell id="15" value="Update Ingestion Log + Flash Success" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="810" width="320" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="16" value="END" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="380" y="910" width="160" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="17" edge="1" source="2" target="3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="18" edge="1" source="3" target="4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="19" value="Batch" edge="1" source="4" target="5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="20" value="Stream" edge="1" source="4" target="6" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="21" edge="1" source="5" target="7" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="22" edge="1" source="6" target="8" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="23" edge="1" source="7" target="9" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="24" edge="1" source="8" target="10" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="25" value="Yes" edge="1" source="9" target="13" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="26" value="No" edge="1" source="9" target="11" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="27" value="Yes" edge="1" source="10" target="14" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="28" value="No" edge="1" source="10" target="12" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="29" edge="1" source="13" target="15" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="30" edge="1" source="14" target="15" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="31" edge="1" source="15" target="16" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
